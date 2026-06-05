@@ -1,0 +1,1344 @@
+<!DOCTYPE html><!-- v5 -->
+<html lang="lo">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<link href="https://fonts.googleapis.com/css2?family=Phetsarath+OT&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+<title>TIK — ລະບົບລູກຄ້າສົນໃຈ</title>
+<style>
+:root{
+  --blue:#1565C0;--blue-light:#E3F2FD;--blue-mid:#1976D2;
+  --green:#1B5E20;--amber:#E65100;--purple:#4A148C;
+  --red:#B71C1C;--teal:#00695C;
+  --border:#CFD8DC;--bg:#F5F7FA;
+  --shadow:0 2px 8px rgba(0,0,0,0.08);--radius:10px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Phetsarath OT','Segoe UI',sans-serif;background:var(--bg);color:#263238;font-size:13px}
+.topnav{background:var(--blue);color:#fff;padding:0 1.2rem;display:flex;align-items:center;gap:8px;height:52px;position:sticky;top:0;z-index:50;box-shadow:0 2px 8px rgba(0,0,0,0.2)}
+.topnav-title{font-size:14px;font-weight:700;flex:1}
+.tab-btn{padding:6px 12px;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-weight:600;background:rgba(255,255,255,0.15);color:#fff;white-space:nowrap;font-family:inherit}
+.tab-btn.active{background:#fff;color:var(--blue)}
+.sync-pill{font-size:11px;background:rgba(255,255,255,0.15);padding:4px 10px;border-radius:12px;cursor:pointer;white-space:nowrap;border:none;color:#fff;font-family:inherit}
+.page{display:none;padding:1rem 1.2rem}
+.page.active{display:block}
+/* KPI */
+.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:1rem}
+.kpi{background:#fff;border-radius:var(--radius);padding:12px 14px;border-left:4px solid var(--blue);box-shadow:var(--shadow)}
+.kpi.green{border-color:var(--green)}.kpi.amber{border-color:var(--amber)}.kpi.purple{border-color:var(--purple)}.kpi.teal{border-color:var(--teal)}
+.kpi-lbl{font-size:10px;color:#607D8B;font-weight:600;margin-bottom:3px}
+.kpi-val{font-size:22px;font-weight:700;line-height:1.1}
+.kpi-sub{font-size:11px;color:#607D8B;margin-top:2px}
+/* DASH */
+.dash-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:1rem}
+.dash-card{background:#fff;border-radius:var(--radius);padding:14px 16px;box-shadow:var(--shadow)}
+.dash-card.full{grid-column:1/-1}.dash-card.sp2{grid-column:span 2}
+.dct{font-size:11px;font-weight:700;color:#455A64;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.brow{display:flex;align-items:center;gap:6px;margin-bottom:5px}
+.blbl{font-size:11px;min-width:100px;max-width:130px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#37474F}
+.btrk{flex:1;background:#ECEFF1;border-radius:10px;height:8px;overflow:hidden}
+.bfil{height:8px;border-radius:10px}
+.bmet{font-size:10px;min-width:70px;text-align:right;color:#607D8B}
+/* GROUP TABS */
+.grphdr{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}
+.gtabs{display:flex;gap:5px;flex-wrap:wrap}
+.gtab{padding:5px 12px;border:1.5px solid var(--border);border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;background:#fff;color:#455A64;font-family:inherit}
+.gtab:hover{border-color:var(--blue);color:var(--blue)}
+.gtab.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+.gt.active{background:var(--teal);color:#fff;border-color:var(--teal)}
+.gg.active{background:var(--green);color:#fff;border-color:var(--green)}
+.ga.active{background:var(--amber);color:#fff;border-color:var(--amber)}
+.gp.active{background:var(--purple);color:#fff;border-color:var(--purple)}
+.gr.active{background:var(--red);color:#fff;border-color:var(--red)}
+.bcnt{background:rgba(0,0,0,0.15);border-radius:20px;padding:1px 6px;font-size:10px;margin-left:3px;font-weight:700}
+/* TOOLBAR */
+.toolbar{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:8px}
+.toolbar input,.toolbar select{font-size:12px;padding:5px 9px;border:1px solid var(--border);border-radius:7px;background:#fff;height:30px;font-family:inherit}
+/* BUTTONS */
+.btn{font-size:12px;padding:5px 12px;border-radius:7px;cursor:pointer;font-weight:600;border:none;height:30px;white-space:nowrap;font-family:inherit;display:inline-flex;align-items:center;gap:4px}
+.bb{background:var(--blue);color:#fff}.bg{background:#2E7D32;color:#fff}
+.bgy{background:#fff;color:#455A64;border:1px solid var(--border)}
+.bt{background:var(--teal);color:#fff}.br{background:var(--red);color:#fff}
+.bam{background:#F57C00;color:#fff}.bpu{background:#5C6BC0;color:#fff}
+.bsm{height:26px!important;padding:0 9px!important;font-size:11px!important}
+/* TABLE */
+.twrap{border:1px solid var(--border);border-radius:var(--radius);background:#fff;box-shadow:var(--shadow);overflow:hidden}
+.twrap-scroll{overflow-x:auto;max-height:calc(100vh - 180px);overflow-y:auto}
+table{width:100%;border-collapse:collapse;font-size:12px}
+thead th{background:#ECEFF1;padding:7px 6px;text-align:left;font-weight:700;font-size:11px;color:#546E7A;border-bottom:2px solid var(--border);white-space:nowrap;position:sticky;top:0;z-index:10}
+tbody tr{border-bottom:1px solid #F0F4F8}
+tbody tr:hover{background:#EBF5FF}
+tbody td{padding:7px 6px;vertical-align:middle}
+.chip{display:inline-block;font-size:10px;padding:2px 8px;border-radius:20px;font-weight:700;white-space:nowrap}
+.ci{background:#E0F2F1;color:#00695C}.cp{background:#FFF3E0;color:#E65100}
+.ca{background:#E8F5E9;color:#1B5E20}.ce{background:#E3F2FD;color:#1565C0}
+.cr{background:#FFEBEE;color:#B71C1C}.cn{background:#ECEFF1;color:#546E7A}
+/* MODAL */
+.moverlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:200;align-items:flex-start;justify-content:center;padding:1rem;overflow-y:auto}
+.moverlay.open{display:flex}
+.mbox{background:#fff;border-radius:14px;padding:1.5rem;width:min(880px,98vw);margin:auto;box-shadow:0 12px 40px rgba(0,0,0,0.25)}
+.mtitle{font-size:15px;font-weight:700;margin-bottom:1rem;color:#263238;display:flex;align-items:center;gap:8px;padding-bottom:10px;border-bottom:1px solid var(--border)}
+/* FORM */
+.fg{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+.f2{grid-column:span 2}.f3{grid-column:span 3}
+.sh{background:linear-gradient(90deg,var(--blue-light),transparent);border-radius:6px;padding:6px 12px;margin:10px 0 4px;font-size:11px;font-weight:700;color:var(--blue);grid-column:1/-1;letter-spacing:.04em}
+.fgrp label{font-size:11px;color:#607D8B;display:block;margin-bottom:3px;font-weight:600}
+.fgrp input,.fgrp select,.fgrp textarea{width:100%;font-size:12px;padding:7px 9px;border:1px solid var(--border);border-radius:6px;background:#FAFAFA;font-family:inherit}
+.fgrp input:focus,.fgrp select:focus,.fgrp textarea:focus{outline:none;border-color:var(--blue);background:#fff;box-shadow:0 0 0 3px rgba(21,101,192,0.1)}
+.fgrp textarea{resize:vertical;min-height:54px}
+/* DATE PICKER */
+.date-wrap{position:relative}
+.date-wrap input{padding-right:30px}
+.date-icon{position:absolute;right:8px;top:50%;transform:translateY(-50%);cursor:pointer;font-size:14px;color:#607D8B}
+.cal-popup{position:absolute;top:calc(100% + 4px);left:0;z-index:500;background:#fff;border:1px solid var(--border);border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,0.15);padding:12px;min-width:260px;display:none}
+.cal-popup.open{display:block}
+.cal-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.cal-nav{background:none;border:none;cursor:pointer;font-size:16px;color:#455A64;padding:2px 8px;border-radius:4px}
+.cal-nav:hover{background:#E3F2FD}
+.cal-month{font-size:13px;font-weight:700;color:#263238}
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:2px}
+.cal-dh{font-size:10px;font-weight:700;color:#90A4AE;text-align:center;padding:3px 0}
+.cal-d{font-size:12px;text-align:center;padding:5px 2px;border-radius:4px;cursor:pointer;color:#263238}
+.cal-d:hover{background:#E3F2FD;color:var(--blue)}
+.cal-d.today{background:#E3F2FD;font-weight:700;color:var(--blue)}
+.cal-d.sel{background:var(--blue);color:#fff;font-weight:700}
+.cal-d.other{color:#CFD8DC}
+.cal-d.empty{cursor:default}
+/* COLLATERAL */
+.col-row{display:grid;grid-template-columns:1.2fr 0.8fr 1.5fr auto;gap:6px;align-items:end;background:#F8FAFC;padding:8px 10px;border-radius:8px;border:1px solid #E0E7EF;margin-bottom:6px}
+.col-row select,.col-row input{font-size:12px;padding:6px 8px;border:1px solid var(--border);border-radius:6px;background:#fff;width:100%;font-family:inherit}
+/* MODAL ACTIONS */
+.mact{display:flex;justify-content:flex-end;gap:8px;margin-top:1rem;padding-top:10px;border-top:1px solid var(--border);flex-wrap:wrap}
+/* PAGINATION */
+.pgwrap{display:flex;align-items:center;gap:5px;justify-content:flex-end;margin-top:8px;font-size:12px;flex-wrap:wrap}
+.pgb{padding:3px 9px;border:1px solid var(--border);border-radius:6px;background:#fff;cursor:pointer;font-size:12px;color:#455A64;font-family:inherit}
+.pgb.active{background:var(--blue);color:#fff;border-color:var(--blue)}
+/* TOAST */
+#toast{position:fixed;bottom:20px;right:20px;padding:10px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:9999;box-shadow:0 4px 12px rgba(0,0,0,0.2);opacity:0;transition:opacity .3s;pointer-events:none;font-family:inherit}
+/* RT dot */
+.rtdot{width:8px;height:8px;border-radius:50%;background:#22c55e;display:inline-block;flex-shrink:0;box-shadow:0 0 0 3px rgba(34,197,94,.25)}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.rtdot.syncing{animation:blink .8s infinite}
+.lang-btn{padding:4px 9px;border:none;border-radius:6px;cursor:pointer;font-size:11px;font-weight:700;background:transparent;color:rgba(255,255,255,0.7);font-family:inherit;transition:all .15s}
+.lang-btn:hover{background:rgba(255,255,255,0.2);color:#fff}
+.lang-btn.active{background:#fff;color:var(--blue)}
+@media(max-width:768px){.kpi-grid{grid-template-columns:1fr 1fr}.dash-grid{grid-template-columns:1fr}.fg{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div class="topnav">
+  <div class="topnav-title" id="nav-title">🏦 TIK — ລະບົບລູກຄ້າສົນໃຈ ເຄສທຸລະກິດໃໝ່</div>
+  <span class="rtdot" id="rtdot"></span>
+  <button class="sync-pill" id="synclbl" onclick="manualSync()" onmousedown="syncBtnDown()" onmouseup="syncBtnUp()" ontouchstart="syncBtnDown()" ontouchend="syncBtnUp()" title="ກົດຄ້າງ 2 ວິ ເພື່ອປ່ຽນ Token">⏳ ກຳລັງໂຫລດ...</button>
+  <div style="display:flex;gap:3px;background:rgba(255,255,255,0.12);border-radius:8px;padding:3px">
+    <button id="lb-lo" class="lang-btn active" onclick="setLang('lo')">🇱🇦 ລາວ</button>
+    <button id="lb-en" class="lang-btn" onclick="setLang('en')">🇬🇧 EN</button>
+    <button id="lb-ja" class="lang-btn" onclick="setLang('ja')">🇯🇵 JP</button>
+  </div>
+  <button class="tab-btn active" id="tab-dash" onclick="showPage('dash',this)">📊 Dashboard</button>
+  <button class="tab-btn" id="tab-cases" onclick="showPage('cases',this)">📋 ລາຍການ</button>
+</div>
+
+<!-- DASHBOARD -->
+<div class="page active" id="page-dash">
+  <div class="kpi-grid" id="kpi-area"></div>
+  <div class="dash-grid" id="dash-area"></div>
+</div>
+
+<!-- CASES -->
+<div class="page" id="page-cases">
+  <div class="grphdr">
+    <div class="gtabs">
+      <button class="gtab active" onclick="setG('all')"><span class="gtxt-all">ທັງໝົດ</span><span class="bcnt" id="cnt-all">0</span></button>
+      <button class="gtab gt" onclick="setG('i')"><span class="gtxt-i">ສົນໃຈ</span><span class="bcnt" id="cnt-i">0</span></button>
+      <button class="gtab ga" onclick="setG('p')"><span class="gtxt-p">Ringi Pending</span><span class="bcnt" id="cnt-p">0</span></button>
+      <button class="gtab gg" onclick="setG('a')"><span class="gtxt-a">ອານຸມັດ</span><span class="bcnt" id="cnt-a">0</span></button>
+      <button class="gtab gp" onclick="setG('e')"><span class="gtxt-e">ປ່ອຍກູ້/ປະຕິບັດ</span><span class="bcnt" id="cnt-e">0</span></button>
+      <button class="gtab gr" onclick="setG('r')"><span class="gtxt-r">ປະຕິເສດ</span><span class="bcnt" id="cnt-r">0</span></button>
+    </div>
+    <div style="margin-left:auto;display:flex;gap:5px;flex-wrap:wrap">
+      <button class="btn bb" id="btn-add" onclick="openAdd()">＋ ເພີ່ມເຄສ</button>
+      <button class="btn bg" onclick="expCSV()">📥 CSV</button>
+      <button class="btn bpu" onclick="expJSON()">💾 Backup</button>
+      <button class="btn bam" onclick="impJSON()">📂 Import</button>
+    </div>
+  </div>
+  <div class="toolbar">
+    <input type="text" id="q" placeholder="🔍 ຄົ້ນຫາ ຊື່/ບໍລິສັດ/ຜູ້ຮັບຜິດຊອບ..." style="width:230px" oninput="render()">
+    <select id="fDe" onchange="render()"><option value="">ພະແນກ: ທັງໝົດ</option></select>
+    <select id="fSe" onchange="render()"><option value="">ຂະແໜງ: ທັງໝົດ</option></select>
+    <select id="fOw" onchange="render()"><option value="">ຜູ້ຮັບຜິດຊອບ: ທັງໝົດ</option></select>
+    <select id="fTr" onchange="render()"><option value="">ຈຸດປະສົງ: ທັງໝົດ</option></select>
+    <select id="fSr" onchange="render()"><option value="">ແຫຼ່ງ: ທັງໝົດ</option></select>
+  </div>
+  <div class="twrap">
+    <div class="twrap-scroll">
+    <table>
+      <thead><tr>
+        <th>#</th><th id="th-date">ວັນທີ</th><th id="th-dept">ພ/ຂ/ໜ</th><th id="th-owner">ຜູ້ຮັບຜິດຊອບ</th><th id="th-pos">ຕຳແໜ່ງ</th>
+        <th id="th-co">ຊື່ບໍລິສັດ / ລູກຄ້າ</th><th id="th-ct">ຜູ້ຕິດຕໍ່</th><th id="th-src">ແຫຼ່ງ</th><th id="th-tr">ຈຸດປະສົງ</th>
+        <th id="th-amt">ວົງເງິນ USD</th><th id="th-stat">ສະຖານະ Ringi</th><th id="th-call">ສະຖານະໂທ</th><th id="th-dl">ກຳນົດ</th>
+        <th id="th-act" style="min-width:170px">ຈັດການ</th>
+        <th id="th-docs" style="width:120px;max-width:120px">ເອກະສານ</th>
+      </tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    </div>
+  </div>
+  <div class="pgwrap" id="pgwrap"></div>
+</div>
+
+<!-- MODAL -->
+<div class="moverlay" id="MO" onclick="if(event.target===this)closeModal()">
+  <div class="mbox" id="MB"></div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+// ============================================================
+// CONFIG — ໃສ່ Gist ID + Token (ທຸກຄົນໃຊ້ຄ່າດຽວກັນ)
+// ============================================================
+const GIST_ID = '223d9e5e122f605882dbdfef435cd5ec';
+const GIST_FILE = 'tik_newbiz_data.json';
+const LS_KEY = 'tik_newbiz_v3';
+const LS_TOKEN_KEY = 'tik_gist_token';
+
+// Get token from localStorage — never hardcoded in file
+function getToken(){return localStorage.getItem(LS_TOKEN_KEY)||'';}
+function setToken(t){localStorage.setItem(LS_TOKEN_KEY,t);}
+
+// Show token setup modal if no token
+function checkToken(){
+  if(getToken())return;
+  const ov=document.createElement('div');
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.7);z-index:99999;display:flex;align-items:center;justify-content:center';
+  ov.innerHTML=`<div style="background:#fff;border-radius:14px;padding:2rem;width:min(480px,92vw);box-shadow:0 12px 40px rgba(0,0,0,0.3);font-family:\'Phetsarath OT\',sans-serif">
+    <div style="font-size:16px;font-weight:700;color:#1565C0;margin-bottom:8px">🔑 ຕັ້ງຄ່າ GitHub Token</div>
+    <div style="font-size:12px;color:#607D8B;margin-bottom:16px">ໃສ່ GitHub Personal Access Token (Classic, scope: gist) ເພື່ອ sync ຂໍ້ມູນ.<br>Token ຈະຖືກເກັບໃນ Browser ຂອງທ່ານ — ບໍ່ຢູ່ໃນ file.</div>
+    <input id="token-inp" type="password" placeholder="ghp_xxxxxxxxxxxxxxxxxxxx" style="width:100%;font-size:13px;padding:10px 12px;border:1.5px solid #CFD8DC;border-radius:8px;font-family:inherit;box-sizing:border-box;margin-bottom:12px">
+    <div style="display:flex;gap:8px">
+      <button onclick="saveToken()" style="flex:1;background:#1565C0;color:#fff;border:none;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit">💾 ບັນທຶກ Token</button>
+      <button onclick="this.closest(\'div[style*=fixed]\').remove()" style="background:#ECEFF1;color:#455A64;border:none;border-radius:8px;padding:10px 16px;font-size:13px;cursor:pointer;font-family:inherit">ຂ້າມ</button>
+    </div>
+    <div style="font-size:11px;color:#90A4AE;margin-top:10px">ສ້າງ Token: github.com/settings/tokens/new → Classic → gist ✅</div>
+  </div>`;
+  document.body.appendChild(ov);
+  setTimeout(()=>document.getElementById('token-inp')&&document.getElementById('token-inp').focus(),100);
+}
+
+function saveToken(){
+  const inp=document.getElementById('token-inp');
+  if(!inp)return;
+  const val=inp.value.trim();
+  if(!val.startsWith('ghp_')){alert('Token ຕ້ອງເລີ່ມຕົ້ນດ້ວຍ ghp_');return;}
+  setToken(val);
+  inp.closest('div[style*="fixed"]').remove();
+  toast('✅ Token ບັນທຶກໃນ Browser ແລ້ວ!');
+  pullGist().then(applyRemote);
+  startSync();
+}
+
+// Allow changing token via sync button long-press
+let _syncHold=null;
+function syncBtnDown(){_syncHold=setTimeout(()=>{localStorage.removeItem(LS_TOKEN_KEY);checkToken();},2000);}
+function syncBtnUp(){clearTimeout(_syncHold);}
+
+
+// ============================================================
+// STATE
+// ============================================================
+let D=[], EID=null, GRP='all', PG=1, TMRPULL=null, ETAG=null, BC=null;
+const PPG=50;
+
+const TRADES=['ກູ້ຢືມ','ຮ່ວມທຸລະກິດ (JV)','ລົງທຶນ','ການຊື້ຂາຍ','ການແນະນຳ','ອື່ນໆ'];
+const STATS=['ລູກຄ້າສົນໃຈ','Ringi Pending','ອານຸມັດແລ້ວ','ປ່ອຍກູ້/ປະຕິບັດແລ້ວ','ປະຕິເສດ','ບໍ່ສົນໃຈ'];
+const CALLST=['ຮັບສາຍ','ຕິດຕໍ່ບໍ່ໄດ້','ບໍ່ຮັບສາຍ','ນັດໝາຍ'];
+const POSS=['ຫົວໜ້າພະແນກ','ຫົວໜ້າຂະແໜງ','ຫົວໜ້າໜ່ວຍງານ','Mini TL','Sales','CC','ອື່ນໆ'];
+const SRCS=['EXT','DOR','NEW','SP'];
+const COLTYPES=['ດິນ','ເຮືອນ','ດິນ+ເຮືອນ','ລົດ','ສາງ/ອາຄານ','ຫຼັກຊັບ','ບໍ່ມີ','ອື່ນໆ'];
+const GMAP={i:'ລູກຄ້າສົນໃຈ',p:'Ringi Pending',a:'ອານຸມັດແລ້ວ',e:'ປ່ອຍກູ້/ປະຕິບັດແລ້ວ',r:'ປະຕິເສດ'};
+const CHIP={
+  'ລູກຄ້າສົນໃຈ':'ci','Ringi Pending':'cp','ອານຸມັດແລ້ວ':'ca',
+  'ປ່ອຍກູ້/ປະຕິບັດແລ້ວ':'ce','ປະຕິເສດ':'cr','ບໍ່ສົນໃຈ':'cn'
+};
+
+// helpers
+const xe=s=>String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+const fmtUSD=n=>n?'$'+Number(n).toLocaleString('en-US'):'—';
+const opts=(arr,v)=>arr.map(a=>`<option value="${xe(a)}"${a===v?' selected':''}>${xe(a)}</option>`).join('');
+
+// ============================================================
+// i18n — 3 LANGUAGES
+// ============================================================
+let LANG='lo';
+const I18N={
+  lo:{
+    title:'🏦 TIK — ລະບົບລູກຄ້າສົນໃຈ ເຄສທຸລະກິດໃໝ່',
+    tabDash:'📊 Dashboard',tabCases:'📋 ລາຍການ',
+    btnAdd:'＋ ເພີ່ມເຄສ',btnCSV:'📥 CSV',btnBackup:'💾 Backup',btnImport:'📂 Import',
+    gAll:'ທັງໝົດ',gI:'ສົນໃຈ',gP:'Ringi Pending',gA:'ອານຸມັດ',gE:'ປ່ອຍກູ້/ປະຕິບັດ',gR:'ປະຕິເສດ',
+    fDept:'ພະແນກ: ທັງໝົດ',fSec:'ຂະແໜງ: ທັງໝົດ',fOwner:'ຜູ້ຮັບຜິດຊອບ: ທັງໝົດ',fTrade:'ຈຸດປະສົງ: ທັງໝົດ',fSrc:'ແຫຼ່ງ: ທັງໝົດ',
+    search:'🔍 ຄົ້ນຫາ ຊື່/ບໍລິສັດ/ຜູ້ຮັບຜິດຊອບ...',
+    thDate:'ວັນທີ',thDept:'ພ/ຂ/ໜ',thOwner:'ຜູ້ຮັບຜິດຊອບ',thPos:'ຕຳແໜ່ງ',thCo:'ຊື່ບໍລິສັດ / ລູກຄ້າ',thContact:'ຜູ້ຕິດຕໍ່',thSrc:'ແຫຼ່ງ',thTrade:'ຈຸດປະສົງ',thAmt:'ວົງເງິນ USD',thStat:'ສະຖານະ Ringi',thCall:'ສະຖານະໂທ',thDL:'ກຳນົດ',thAct:'ຈັດການ',thDocs:'ເອກະສານ',
+    btnEdit:'✏️ ແກ້ໄຂ',btnDel:'🗑',
+    kpiTotal:'ລວມເຄສທັງໝົດ',kpiInt:'ລູກຄ້າສົນໃຈ (Active)',kpiPend:'Ringi Pending',kpiExec:'ປ່ອຍກູ້/ປະຕິບັດ',kpiAmt:'ລວມ USD ທັງໝົດ',kpiWait:'ລໍຖ້າອານຸມັດ',kpiCase:'Case',
+    dctOwner:'🏆 ສະຫຼຸບຕາມຜູ້ຮັບຜິດຊອບ (Top 12)',dctStat:'📊 ສະຖານະ Ringi',dctDept:'🏢 ຕາມພະແນກ (USD)',dctTrade:'🎯 ຈຸດປະສົງ (USD)',dctSrc:'📡 ແຫຼ່ງຂໍ້ມູນ',dctRecent:'🕒 ເຄສລ່າສຸດ 8 ລາຍການ',
+    noData:'ຍັງບໍ່ມີຂໍ້ມູນ — ໄປ "ລາຍການ" ເພື່ອເພີ່ມເຄສ',
+    noRows:'📭 ບໍ່ມີຂໍ້ມູນ — ກົດ "＋ ເພີ່ມເຄສ" ເພື່ອລົງທະບຽນ',
+    frmAdd:'ເພີ່ມ',frmEdit:'ແກ້ໄຂ',frmNew:'ເຄສໃໝ່',
+    s1:'①ຂໍ້ມູນພະແນກ / ຜູ້ຮັບຜິດຊອບ',s2:'②ຂໍ້ມູນລູກຄ້າ',s3:'③ຈຸດປະສົງ & ເງື່ອນໄຂ',s4:'④ຊັບສິນຄ້ຳປະກັນ — ເພີ່ມໄດ້ຫຼາຍລາຍການ',s5:'⑤ສະຖານະ & ການຕິດຕາມ',s6:'⑥ຮູບພາບ & ເອກະສານແນບ',
+    lDept:'ພະແນກ (Dept)',lSec:'ຂະແໜງ (Sec)',lUnit:'ໜ່ວຍງານ (Unit)',lOwner:'ຜູ້ຮັບຜິດຊອບ ★',lPos:'ຕຳແໜ່ງ',lHOBR:'HO / BR',
+    lCo:'ຊື່ບໍລິສັດ / ຊື່ລູກຄ້າ ★',lContact:'ຜູ້ຕິດຕໍ່',lTel:'ເບີໂທ',lSrc:'ແຫຼ່ງຂໍ້ມູນ',lBiz:'ທຸລະກິດ / ສາຂາ',lAddr:'ທີ່ຢູ່ / ແຂວງ',
+    lTrade:'ຈຸດປະສົງ',lAmt:'ວົງເງິນ (USD) ★',lDL:'ກຳນົດ 📅',lRev:'ລາຍຮັບ/ເດືອນ (USD)',lProfit:'ກຳໄລ/ເດືອນ (USD)',lTerms:'ໄລຍະ (ເດືອນ)',lPurp:'ຈຸດປະສົງນຳໃຊ້ທຶນ',lRep:'ວິທີຊຳລະຄືນ',
+    lColType:'ປະເພດ',lColVal:'ມູນຄ່າ (USD)',lColDesc:'ລາຍລະອຽດ / ຫຍໍ້',btnAddCol:'＋ ເພີ່ມຊັບສິນ',
+    lStat:'ສະຖານະ Ringi ★',lCall:'ສະຖານະໂທ',lCust:'ຄວາມຄິດລູກຄ້າ',lNotes:'ໝາຍເຫດ',lFree:'Free Space (ສຳລັບ Word RINGI)',
+    btnBrowse:'📷 Browse ຮູບ (JPG/PNG)',btnDrive:'🔗 ເພີ່ມ Drive Link',attHint:'💡 ຮູບ: Browse ຈາກ Computer → ໂຊ preview ໃນ Browser ຂອງທ່ານ | Drive Link: ທຸກຄົນກົດເປີດໄດ້',attName:'ຊື່ / ລາຍລະອຽດ...',attNoFiles:'ຍັງບໍ່ມີຮູບ/ເອກະສານ',
+    btnSave:'💾 ບັນທຶກ',btnCancel:'ຍົກເລີກ',btnRingi:'📄 RINGI Word',
+    toastSaved:'✅ ບັນທຶກ & Sync ສຳເລັດ!',toastUpdated:'✅ ອັບເດດ & Sync ສຳເລັດ!',toastDel:'🗑 ລົບແລ້ວ',
+    confirmDel:'ລົບເຄສນີ້?',confirmImport:'ນຳເຂົ້າ {n} ລາຍການ? ຂໍ້ມູນເກົ່າຈະຖືກທົດແທນ',
+    errOwner:'ກະລຸນາໃສ່ຜູ້ຮັບຜິດຊອບ',errCo:'ກະລຸນາໃສ່ຊື່ບໍລິສັດ/ລູກຄ້າ',
+    trades:['ກູ້ຢືມ','ຮ່ວມທຸລະກິດ (JV)','ລົງທຶນ','ການຊື້ຂາຍ','ການແນະນຳ','ອື່ນໆ'],
+    stats:['ລູກຄ້າສົນໃຈ','Ringi Pending','ອານຸມັດແລ້ວ','ປ່ອຍກູ້/ປະຕິບັດແລ້ວ','ປະຕິເສດ','ບໍ່ສົນໃຈ'],
+    callst:['ຮັບສາຍ','ຕິດຕໍ່ບໍ່ໄດ້','ບໍ່ຮັບສາຍ','ນັດໝາຍ'],
+    poss:['ຫົວໜ້າພະແນກ','ຫົວໜ້າຂະແໜງ','ຫົວໜ້າໜ່ວຍງານ','Mini TL','Sales','CC','ອື່ນໆ'],
+    coltypes:['ດິນ','ເຮືອນ','ດິນ+ເຮືອນ','ລົດ','ສາງ/ອາຄານ','ຫຼັກຊັບ','ບໍ່ມີ','ອື່ນໆ'],
+    dhPos:'ຕຳແໜ່ງ',dhDept:'ພ/ຂ',dhCnt:'ເຄສ',dhAmt:'ລວມ USD',dhEx:'ປ່ອຍ',dhExAmt:'ປ່ອຍ USD',
+    ringiLang:'ສ້າງໃບຂໍອານຸມັດ RINGI',ringiChoose:'ເລືອກພາສາ:'
+  },
+  en:{
+    title:'🏦 TIK — New Business Customer System',
+    tabDash:'📊 Dashboard',tabCases:'📋 Cases',
+    btnAdd:'＋ Add Case',btnCSV:'📥 CSV',btnBackup:'💾 Backup',btnImport:'📂 Import',
+    gAll:'All',gI:'Interested',gP:'Ringi Pending',gA:'Approved',gE:'Executed/Disbursed',gR:'Rejected',
+    fDept:'Dept: All',fSec:'Section: All',fOwner:'Owner: All',fTrade:'Purpose: All',fSrc:'Source: All',
+    search:'🔍 Search name/company/owner...',
+    thDate:'Date',thDept:'Dept/Sec/Unit',thOwner:'Owner',thPos:'Position',thCo:'Company / Customer',thContact:'Contact',thSrc:'Source',thTrade:'Purpose',thAmt:'Amount USD',thStat:'Ringi Status',thCall:'Call Status',thDL:'Deadline',thAct:'Actions',thDocs:'Documents',
+    btnEdit:'✏️ Edit',btnDel:'🗑',
+    kpiTotal:'Total Cases',kpiInt:'Interested (Active)',kpiPend:'Ringi Pending',kpiExec:'Executed/Disbursed',kpiAmt:'Total USD',kpiWait:'Awaiting Approval',kpiCase:'Cases',
+    dctOwner:'🏆 Summary by Owner (Top 12)',dctStat:'📊 Ringi Status',dctDept:'🏢 By Department (USD)',dctTrade:'🎯 By Purpose (USD)',dctSrc:'📡 Lead Sources',dctRecent:'🕒 Latest 8 Cases',
+    noData:'No data yet — go to "Cases" to add',
+    noRows:'📭 No data — click "＋ Add Case" to start',
+    frmAdd:'Add',frmEdit:'Edit',frmNew:'New Case',
+    s1:'①Department / Owner',s2:'②Customer Info',s3:'③Purpose & Terms',s4:'④Collateral — Multiple allowed',s5:'⑤Status & Follow-up',s6:'⑥Photos & Documents',
+    lDept:'Department',lSec:'Section',lUnit:'Unit',lOwner:'Owner ★',lPos:'Position',lHOBR:'HO / BR',
+    lCo:'Company / Customer Name ★',lContact:'Contact Person',lTel:'Phone',lSrc:'Lead Source',lBiz:'Business / Industry',lAddr:'Address / Province',
+    lTrade:'Purpose',lAmt:'Amount (USD) ★',lDL:'Deadline 📅',lRev:'Revenue/Month (USD)',lProfit:'Profit/Month (USD)',lTerms:'Tenure (months)',lPurp:'Fund Purpose',lRep:'Repayment Method',
+    lColType:'Type',lColVal:'Value (USD)',lColDesc:'Description',btnAddCol:'＋ Add Collateral',
+    lStat:'Ringi Status ★',lCall:'Call Status',lCust:'Customer Response',lNotes:'Notes',lFree:'Free Space (for RINGI Word)',
+    btnBrowse:'📷 Browse Image (JPG/PNG)',btnDrive:'🔗 Add Drive Link',attHint:'💡 Image: Browse from Computer → preview in your Browser | Drive Link: anyone can open',attName:'Name / description...',attNoFiles:'No attachments yet',
+    btnSave:'💾 Save',btnCancel:'Cancel',btnRingi:'📄 RINGI Word',
+    toastSaved:'✅ Saved & Synced!',toastUpdated:'✅ Updated & Synced!',toastDel:'🗑 Deleted',
+    confirmDel:'Delete this case?',confirmImport:'Import {n} items? Current data will be replaced.',
+    errOwner:'Please enter owner name',errCo:'Please enter company/customer name',
+    trades:['Loan','Joint Venture (JV)','Investment','Trade/Sales','Referral','Other'],
+    stats:['Interested','Ringi Pending','Approved','Executed/Disbursed','Rejected','Not Interested'],
+    callst:['Connected','Cannot Reach','No Answer','Appointment'],
+    poss:['Dept Head','Section Head','Unit Head','Mini TL','Sales','CC','Other'],
+    coltypes:['Land','House','Land+House','Vehicle','Warehouse','Securities','None','Other'],
+    dhPos:'Position',dhDept:'Dept/Sec',dhCnt:'Cases',dhAmt:'Total USD',dhEx:'Exec.',dhExAmt:'Exec. USD',
+    ringiLang:'Generate RINGI Approval Form',ringiChoose:'Select language:'
+  },
+  ja:{
+    title:'🏦 TIK — 新規ビジネス顧客管理システム',
+    tabDash:'📊 ダッシュボード',tabCases:'📋 案件一覧',
+    btnAdd:'＋ 案件追加',btnCSV:'📥 CSV',btnBackup:'💾 バックアップ',btnImport:'📂 インポート',
+    gAll:'全て',gI:'興味あり',gP:'稟議中',gA:'承認済み',gE:'実行済み',gR:'却下',
+    fDept:'部署: 全て',fSec:'課: 全て',fOwner:'担当者: 全て',fTrade:'目的: 全て',fSrc:'情報源: 全て',
+    search:'🔍 名前/会社/担当者 検索...',
+    thDate:'日付',thDept:'部署/課',thOwner:'担当者',thPos:'役職',thCo:'会社名 / 顧客',thContact:'担当',thSrc:'情報源',thTrade:'目的',thAmt:'金額 USD',thStat:'稟議ステータス',thCall:'通話状態',thDL:'期限',thAct:'操作',thDocs:'書類',
+    btnEdit:'✏️ 編集',btnDel:'🗑',
+    kpiTotal:'案件合計',kpiInt:'興味あり (アクティブ)',kpiPend:'稟議中',kpiExec:'実行済み',kpiAmt:'合計 USD',kpiWait:'承認待ち',kpiCase:'件',
+    dctOwner:'🏆 担当者別サマリー (Top 12)',dctStat:'📊 稟議ステータス',dctDept:'🏢 部署別 (USD)',dctTrade:'🎯 目的別 (USD)',dctSrc:'📡 情報源',dctRecent:'🕒 最新 8 件',
+    noData:'データなし — 「案件一覧」から追加してください',
+    noRows:'📭 データなし — 「＋ 案件追加」をクリック',
+    frmAdd:'追加',frmEdit:'編集',frmNew:'新規案件',
+    s1:'①部署 / 担当者',s2:'②顧客情報',s3:'③目的・条件',s4:'④担保資産 — 複数可',s5:'⑤ステータス・フォローアップ',s6:'⑥画像・書類添付',
+    lDept:'部署',lSec:'課',lUnit:'係',lOwner:'担当者 ★',lPos:'役職',lHOBR:'HO / BR',
+    lCo:'会社名 / 顧客名 ★',lContact:'担当者名',lTel:'電話番号',lSrc:'情報源',lBiz:'事業内容',lAddr:'住所 / 県',
+    lTrade:'目的',lAmt:'金額 (USD) ★',lDL:'期限 📅',lRev:'月商 (USD)',lProfit:'月次利益 (USD)',lTerms:'期間（ヶ月）',lPurp:'資金使途',lRep:'返済方法',
+    lColType:'種類',lColVal:'評価額 (USD)',lColDesc:'詳細',btnAddCol:'＋ 担保追加',
+    lStat:'稟議ステータス ★',lCall:'通話状態',lCust:'顧客の反応',lNotes:'備考',lFree:'自由記載欄 (RINGI Word用)',
+    btnBrowse:'📷 画像を選択 (JPG/PNG)',btnDrive:'🔗 Driveリンク追加',attHint:'💡 画像: PCから選択 → あなたのBrowserでプレビュー | Driveリンク: 全員が開ける',attName:'名前 / 説明...',attNoFiles:'添付なし',
+    btnSave:'💾 保存',btnCancel:'キャンセル',btnRingi:'📄 RINGI Word',
+    toastSaved:'✅ 保存・同期完了！',toastUpdated:'✅ 更新・同期完了！',toastDel:'🗑 削除しました',
+    confirmDel:'この案件を削除しますか？',confirmImport:'{n}件をインポート？既存データは上書きされます。',
+    errOwner:'担当者名を入力してください',errCo:'会社名/顧客名を入力してください',
+    trades:['融資','合弁事業 (JV)','投資','売買','紹介','その他'],
+    stats:['興味あり','稟議中','承認済み','実行済み','却下','興味なし'],
+    callst:['通話成功','連絡不可','不在着信','アポイント'],
+    poss:['部長','課長','係長','Mini TL','Sales','CC','その他'],
+    coltypes:['土地','建物','土地+建物','車両','倉庫/建屋','有価証券','なし','その他'],
+    dhPos:'役職',dhDept:'部署/課',dhCnt:'件数',dhAmt:'合計 USD',dhEx:'実行',dhExAmt:'実行 USD',
+    ringiLang:'稟議書の作成',ringiChoose:'言語を選択:'
+  }
+};
+
+function t(k){return(I18N[LANG]||I18N.lo)[k]||k;}
+
+function setLang(lang){
+  LANG=lang;
+  try{localStorage.setItem('tik_lang',lang);}catch(e){}
+  // Update lang buttons
+  ['lo','en','ja'].forEach(l=>{
+    const b=document.getElementById('lb-'+l);
+    if(b)b.classList.toggle('active',l===lang);
+  });
+  // Update dynamic constants for current lang
+  const T=I18N[lang]||I18N.lo;
+  // Update nav
+  const nt=document.getElementById('nav-title');if(nt)nt.textContent=T.title;
+  const td=document.getElementById('tab-dash');if(td)td.textContent=T.tabDash;
+  const tc=document.getElementById('tab-cases');if(tc)tc.textContent=T.tabCases;
+  // Update table headers
+  const ths=document.querySelectorAll('#page-cases thead th');
+  const hkeys=['','thDate','thDept','thOwner','thPos','thCo','thContact','thSrc','thTrade','thAmt','thStat','thCall','thDL','thAct','thDocs'];
+  ths.forEach((th,i)=>{if(hkeys[i])th.textContent=T[hkeys[i]];});
+  // Update toolbar placeholders
+  const sq=document.getElementById('q');if(sq)sq.placeholder=T.search;
+  // Update filter options labels (first option)
+  const fmap={fDe:'fDept',fSe:'fSec',fOw:'fOwner',fTr:'fTrade',fSr:'fSrc'};
+  Object.entries(fmap).forEach(([id,tk])=>{
+    const s=document.getElementById(id);if(s&&s.options[0])s.options[0].text=T[tk];
+  });
+  // Update group tabs
+  const gmap2=[['all','gAll'],['i','gI'],['p','gP'],['a','gA'],['e','gE'],['r','gR']];
+  document.querySelectorAll('.gtab').forEach((b,i)=>{
+    if(gmap2[i]){
+      const bcnt=b.querySelector('.bcnt');
+      const txt=T[gmap2[i][1]];
+      b.childNodes[0].textContent=txt;
+    }
+  });
+  // Update action buttons in toolbar area
+  const ba=document.querySelector('.grphdr .bb');if(ba)ba.textContent=T.btnAdd;
+  // Re-render to update content
+  const activePage=document.querySelector('.page.active');
+  if(activePage&&activePage.id==='page-dash')rdDash();
+  if(activePage&&activePage.id==='page-cases')render();
+}
+
+function toast(msg,ok=true){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.style.background=ok?'#1B5E20':'#C62828';
+  el.style.color='#fff';el.style.opacity='1';
+  clearTimeout(el._t);el._t=setTimeout(()=>el.style.opacity='0',2800);
+}
+
+// ============================================================
+// NAV
+// ============================================================
+function showPage(id,btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  if(btn)btn.classList.add('active');
+  if(id==='dash')rdDash();
+  if(id==='cases')render();
+}
+
+// ============================================================
+// FILTERS
+// ============================================================
+function initFilters(){
+  const uniq=k=>[...new Set(D.map(r=>r[k]).filter(Boolean))].sort();
+  const fill=(id,lbl,arr)=>{
+    const s=document.getElementById(id);if(!s)return;
+    const cv=s.value;
+    s.innerHTML=`<option value="">${lbl}</option>`+arr.map(v=>`<option value="${xe(v)}">${xe(v)}</option>`).join('');
+    s.value=arr.includes(cv)?cv:'';
+  };
+  fill('fDe',t('fDept'),uniq('dept'));
+  fill('fSe',t('fSec'),uniq('sec'));
+  fill('fOw',t('fOwner'),uniq('owner'));
+  fill('fTr',t('fTrade'),uniq('trade'));
+  fill('fSr',t('fSrc'),uniq('source'));
+}
+
+function setG(g){
+  GRP=g;PG=1;
+  document.querySelectorAll('.gtab').forEach(b=>b.classList.remove('active'));
+  const idx={all:0,i:1,p:2,a:3,e:4,r:5}[g]||0;
+  document.querySelectorAll('.gtab')[idx].classList.add('active');
+  render();
+}
+
+function getFilt(){
+  const q=(document.getElementById('q').value||'').toLowerCase();
+  const fD=document.getElementById('fDe').value;
+  const fS=document.getElementById('fSe').value;
+  const fO=document.getElementById('fOw').value;
+  const fT=document.getElementById('fTr').value;
+  const fSr=document.getElementById('fSr').value;
+  return D.filter(c=>{
+    if(GRP!=='all'&&c.ringiStatus!==GMAP[GRP])return false;
+    if(fD&&c.dept!==fD)return false;
+    if(fS&&c.sec!==fS)return false;
+    if(fO&&c.owner!==fO)return false;
+    if(fT&&c.trade!==fT)return false;
+    if(fSr&&c.source!==fSr)return false;
+    if(q){
+      const h=((c.company||'')+(c.contact||'')+(c.owner||'')+(c.dept||'')+(c.sec||'')+(c.trade||'')+(c.ringiStatus||'')).toLowerCase();
+      if(!h.includes(q))return false;
+    }
+    return true;
+  });
+}
+
+function updBadges(){
+  const cnt=s=>D.filter(c=>c.ringiStatus===s).length;
+  document.getElementById('cnt-all').textContent=D.length;
+  document.getElementById('cnt-i').textContent=cnt('ລູກຄ້າສົນໃຈ');
+  document.getElementById('cnt-p').textContent=cnt('Ringi Pending');
+  document.getElementById('cnt-a').textContent=cnt('ອານຸມັດແລ້ວ');
+  document.getElementById('cnt-e').textContent=cnt('ປ່ອຍກູ້/ປະຕິບັດແລ້ວ');
+  document.getElementById('cnt-r').textContent=cnt('ປະຕິເສດ');
+}
+
+// ============================================================
+// RENDER TABLE  — bug fix: rows ຕ້ອງ inject ທຸກ field ໂດຍກົງ
+// ============================================================
+function render(){
+  updBadges();
+  const rows=getFilt();
+  const pages=Math.max(1,Math.ceil(rows.length/PPG));
+  if(PG>pages)PG=1;
+  const slice=rows.slice((PG-1)*PPG,PG*PPG);
+  const tb=document.getElementById('tbody');
+  if(!tb)return;
+
+  if(!slice.length){
+    tb.innerHTML='<tr><td colspan="15" style="padding:3rem;text-align:center;color:#90A4AE;font-size:14px">'+t('noRows')+'</td></tr>';
+    rdPag(0,1);return;
+  }
+
+  // Build rows using DOM concat (avoids template literal escaping bugs)
+  let html='';
+  slice.forEach((c,i)=>{
+    const rownum=(PG-1)*PPG+i+1;
+    const dt=c.createdAt?new Date(c.createdAt).toLocaleDateString('lo-LA'):'—';
+    const dpt=[c.dept,c.sec,c.unit].filter(Boolean).join('/') || '—';
+    const owner=c.owner||'—';
+    const pos=c.position||'—';
+    const company=c.company||'—';
+    const contact=c.contact||'—';
+    const source=c.source||'—';
+    const trade=c.trade||'—';
+    const amt=fmtUSD(c.amount);
+    const stat=c.ringiStatus||'—';
+    const cst=c.callStatus||'—';
+    const dl=c.deadline||'—';
+    const klass=CHIP[c.ringiStatus]||'cn';
+    const key=c._key;
+
+    // attachments — max 3 shown, rest collapsed
+    const atts=Array.isArray(c.attachments)?c.attachments:[];
+    const imgAtts=atts.filter(a=>a.kind==='image');
+    const driveAtts=atts.filter(a=>a.kind!=='image');
+    const SHOW=3;
+    let attHtml='';
+    if(!atts.length){
+      attHtml='<span style="color:#CFD8DC;font-size:11px">—</span>';
+    } else {
+      // show up to SHOW images as small thumbs
+      const shown=imgAtts.slice(0,SHOW).map(a=>{
+        const idx=atts.indexOf(a);
+        return a.dataUrl
+          ?`<img src="${a.dataUrl}" style="width:32px;height:24px;object-fit:cover;border-radius:3px;border:1px solid #ddd;cursor:pointer;flex-shrink:0" onclick="viewImgDirect('${xe(c._key)}',${idx})" title="${xe(a.name||'ຮູບພາບ')}">`
+          :`<span style="font-size:14px;cursor:pointer" onclick="viewImgDirect('${xe(c._key)}',${idx})" title="${xe(a.name||'ຮູບ')}">🖼️</span>`;
+      }).join('');
+      const extra=imgAtts.length>SHOW?`<span style="font-size:10px;color:#90A4AE;font-weight:600">+${imgAtts.length-SHOW}</span>`:'';
+      const drives=driveAtts.slice(0,2).map(a=>
+        a.url?`<a href="${xe(a.url)}" target="_blank" style="font-size:10px;color:#1565C0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:70px;display:inline-block" title="${xe(a.name||'Drive')}">🔗${xe(a.name||'Drive')}</a>`
+        :''
+      ).join('');
+      attHtml=`<div style="display:flex;flex-wrap:wrap;gap:2px;align-items:center;max-width:110px">${shown}${extra}${drives}</div>`;
+    }
+
+    html+=`<tr>
+<td style="color:#90A4AE;font-size:11px;text-align:center">${rownum}</td>
+<td style="white-space:nowrap;font-size:11px">${xe(dt)}</td>
+<td style="font-size:11px;color:#546E7A">${xe(dpt)}</td>
+<td style="font-weight:600">${xe(owner)}</td>
+<td style="font-size:11px;color:#607D8B">${xe(pos)}</td>
+<td style="font-weight:600;color:#1565C0">${xe(company)}</td>
+<td>${xe(contact)}</td>
+<td><span style="background:#E3F2FD;color:#1565C0;border-radius:4px;padding:1px 7px;font-size:10px;font-weight:700">${xe(source)}</span></td>
+<td>${xe(trade)}</td>
+<td style="text-align:right;font-weight:700;color:#1B5E20;white-space:nowrap">${xe(amt)}</td>
+<td><span class="chip ${klass}">${xe(stat)}</span></td>
+<td style="font-size:11px">${xe(cst)}</td>
+<td style="font-size:11px;white-space:nowrap">${xe(dl)}</td>
+<td>
+  <button class="btn bt bsm" data-act="edit" data-key="${xe(key)}">✏️ ແກ້ໄຂ</button>
+  <button class="btn bgy bsm" data-act="ringi" data-key="${xe(key)}">📄 RINGI</button>
+  <button class="btn bsm" style="background:#FFEBEE;color:#B71C1C;border:1px solid #FFCDD2" data-act="del" data-key="${xe(key)}">🗑</button>
+</td>
+<td style="max-width:120px;overflow:hidden">${attHtml}</td>
+</tr>`;
+  });
+  tb.innerHTML=html;
+
+  // Event delegation — attach once
+  tb.onclick=ev=>{
+    const btn=ev.target.closest('button[data-act]');
+    if(!btn)return;
+    const act=btn.dataset.act, key=btn.dataset.key;
+    if(act==='edit')openEdit(key);
+    else if(act==='ringi')openRingiLang(key);
+    else if(act==='del')delCase(key);
+  };
+  rdPag(rows.length,pages);
+}
+
+function rdPag(total,pages){
+  const pg=document.getElementById('pgwrap');if(!pg)return;
+  let h=`<span style="color:#90A4AE;font-size:12px">${total} ລາຍການ</span> `;
+  if(pages>1){
+    h+=`<button class="pgb" onclick="PG=Math.max(1,PG-1);render()">‹</button>`;
+    const s=Math.max(1,PG-3),e=Math.min(pages,PG+3);
+    if(s>1)h+=`<button class="pgb" onclick="PG=1;render()">1</button><span style="padding:0 4px">…</span>`;
+    for(let i=s;i<=e;i++)h+=`<button class="pgb${i===PG?' active':''}" onclick="PG=${i};render()">${i}</button>`;
+    if(e<pages)h+=`<span style="padding:0 4px">…</span><button class="pgb" onclick="PG=${pages};render()">${pages}</button>`;
+    h+=`<button class="pgb" onclick="PG=Math.min(${pages},PG+1);render()">›</button>`;
+  }
+  pg.innerHTML=h;
+}
+
+// ============================================================
+// DASHBOARD
+// ============================================================
+function rdDash(){
+  const tot=D.length;
+  if(!tot){
+    document.getElementById('kpi-area').innerHTML='<div class="kpi" style="grid-column:1/-1;text-align:center;padding:1.5rem;color:#90A4AE">'+t('noData')+'</div>';
+    document.getElementById('dash-area').innerHTML='';return;
+  }
+  const intArr=D.filter(c=>['ລູກຄ້າສົນໃຈ','Ringi Pending','ອານຸມັດແລ້ວ'].includes(c.ringiStatus));
+  const exArr=D.filter(c=>c.ringiStatus==='ປ່ອຍກູ້/ປະຕິບັດແລ້ວ');
+  const totAmt=D.reduce((s,c)=>s+(Number(c.amount)||0),0);
+  const exAmt=exArr.reduce((s,c)=>s+(Number(c.amount)||0),0);
+  const intAmt=intArr.reduce((s,c)=>s+(Number(c.amount)||0),0);
+
+  document.getElementById('kpi-area').innerHTML=`
+<div class="kpi"><div class="kpi-lbl">${t('kpiTotal')}</div><div class="kpi-val">${tot}</div><div class="kpi-sub">${t('kpiCase')}</div></div>
+<div class="kpi teal"><div class="kpi-lbl">${t('kpiInt')}</div><div class="kpi-val">${intArr.length}</div><div class="kpi-sub">${fmtUSD(intAmt)}</div></div>
+<div class="kpi amber"><div class="kpi-lbl">${t('kpiPend')}</div><div class="kpi-val">${D.filter(c=>c.ringiStatus==='Ringi Pending').length}</div><div class="kpi-sub">${t('kpiWait')}</div></div>
+<div class="kpi green"><div class="kpi-lbl">${t('kpiExec')}</div><div class="kpi-val">${exArr.length}</div><div class="kpi-sub">${fmtUSD(exAmt)}</div></div>
+<div class="kpi purple"><div class="kpi-lbl">${t('kpiAmt')}</div><div class="kpi-val" style="font-size:16px">${fmtUSD(totAmt)}</div><div class="kpi-sub"></div></div>`;
+
+  const ownM={};
+  D.forEach(c=>{const o=c.owner||'N/A';if(!ownM[o])ownM[o]={cnt:0,amt:0,ex:0,exA:0,pos:c.position||'',dpt:(c.dept||'')+(c.sec?'/'+c.sec:'')};ownM[o].cnt++;ownM[o].amt+=(Number(c.amount)||0);if(c.ringiStatus==='ປ່ອຍກູ້/ປະຕິບັດແລ້ວ'){ownM[o].ex++;ownM[o].exA+=(Number(c.amount)||0);}});
+  const ownL=Object.entries(ownM).sort((a,b)=>b[1].amt-a[1].amt).slice(0,12);
+
+  const depM={};D.forEach(c=>{const d=c.dept||'N/A';if(!depM[d])depM[d]={n:0,a:0};depM[d].n++;depM[d].a+=(Number(c.amount)||0);});
+  const depL=Object.entries(depM).sort((a,b)=>b[1].a-a[1].a).slice(0,8);
+  const maxDep=Math.max(1,...depL.map(d=>d[1].a));
+
+  const trM={};D.forEach(c=>{const t=c.trade||'N/A';if(!trM[t])trM[t]=0;trM[t]+=(Number(c.amount)||0);});
+  const trL=Object.entries(trM).sort((a,b)=>b[1]-a[1]);
+  const maxTr=Math.max(1,...trL.map(t=>t[1]));
+
+  const srcM={};D.forEach(c=>{const s=c.source||'N/A';if(!srcM[s])srcM[s]=0;srcM[s]++;});
+  const srcL=Object.entries(srcM).sort((a,b)=>b[1]-a[1]);
+  const maxSrc=Math.max(1,...srcL.map(s=>s[1]));
+
+  const stC={'ລູກຄ້າສົນໃຈ':'#00897B','Ringi Pending':'#FB8C00','ອານຸມັດແລ້ວ':'#43A047','ປ່ອຍກູ້/ປະຕິບັດແລ້ວ':'#1E88E5','ປະຕິເສດ':'#E53935','ບໍ່ສົນໃຈ':'#90A4AE'};
+  const stM={};STATS.forEach(s=>{stM[s]=D.filter(c=>c.ringiStatus===s).length;});
+  const recent=[...D].sort((a,b)=>(b.createdAt||0)-(a.createdAt||0)).slice(0,8);
+
+  let ownRows='';
+  ownL.forEach(([o,v])=>{ownRows+=`<tr style="border-bottom:1px solid #F0F4F8"><td style="padding:4px 6px;font-weight:600">${xe(o)}</td><td style="padding:4px 6px;color:#607D8B;font-size:10px">${xe(v.pos)}</td><td style="padding:4px 6px;color:#607D8B;font-size:10px">${xe(v.dpt)}</td><td style="padding:4px 6px;text-align:right">${v.cnt}</td><td style="padding:4px 6px;text-align:right;color:#1565C0;font-weight:600">${fmtUSD(v.amt)}</td><td style="padding:4px 6px;text-align:right">${v.ex}</td><td style="padding:4px 6px;text-align:right;color:#1B5E20;font-weight:600">${fmtUSD(v.exA)}</td></tr>`;});
+
+  let stBars='';
+  Object.entries(stM).forEach(([s,v])=>{stBars+=`<div class="brow"><div class="blbl">${xe(s)}</div><div class="btrk"><div class="bfil" style="width:${tot?Math.round(v/tot*100):0}%;background:${stC[s]||'#90A4AE'}"></div></div><div class="bmet">${v} ເຄສ</div></div>`;});
+
+  let depBars='';
+  depL.forEach(([d,v])=>{depBars+=`<div class="brow"><div class="blbl">${xe(d)}</div><div class="btrk"><div class="bfil" style="width:${Math.round(v.a/maxDep*100)}%;background:#1E88E5"></div></div><div class="bmet">${v.n}ເຄສ ${fmtUSD(v.a)}</div></div>`;});
+
+  let trBars='';
+  trL.forEach(([t,v])=>{trBars+=`<div class="brow"><div class="blbl">${xe(t)}</div><div class="btrk"><div class="bfil" style="width:${Math.round(v/maxTr*100)}%;background:#7B1FA2"></div></div><div class="bmet">${fmtUSD(v)}</div></div>`;});
+
+  let srcBars='';
+  srcL.forEach(([s,v])=>{srcBars+=`<div class="brow"><div class="blbl">${xe(s)}</div><div class="btrk"><div class="bfil" style="width:${Math.round(v/maxSrc*100)}%;background:#0097A7"></div></div><div class="bmet">${v} ເຄສ</div></div>`;});
+
+  let recRows='';
+  recent.forEach(c=>{recRows+=`<tr style="border-bottom:1px solid #F0F4F8"><td style="padding:4px 6px;font-size:11px;white-space:nowrap">${c.createdAt?new Date(c.createdAt).toLocaleDateString('lo-LA'):'—'}</td><td style="padding:4px 6px;font-weight:600">${xe(c.owner||'—')}</td><td style="padding:4px 6px;color:#1565C0">${xe(c.company||'—')}</td><td style="padding:4px 6px"><span style="background:#E3F2FD;color:#1565C0;border-radius:4px;padding:1px 6px;font-size:10px;font-weight:700">${xe(c.source||'—')}</span></td><td style="padding:4px 6px">${xe(c.trade||'—')}</td><td style="padding:4px 6px;text-align:right;color:#1B5E20;font-weight:600">${fmtUSD(c.amount)}</td><td style="padding:4px 6px"><span class="chip ${CHIP[c.ringiStatus]||'cn'}">${xe(c.ringiStatus||'—')}</span></td></tr>`;});
+
+  document.getElementById('dash-area').innerHTML=`
+<div class="dash-card sp2">
+  <div class="dct">${t('dctOwner')}</div>
+  <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">
+    <thead><tr style="background:#E3F2FD"><th style="padding:4px 6px;text-align:left">ຜູ້ຮັບຜິດຊອບ</th><th style="padding:4px 6px">ຕຳແໜ່ງ</th><th style="padding:4px 6px">ພ/ຂ</th><th style="padding:4px 6px;text-align:right">ເຄສ</th><th style="padding:4px 6px;text-align:right">ລວມ USD</th><th style="padding:4px 6px;text-align:right">ປ່ອຍ</th><th style="padding:4px 6px;text-align:right">ປ່ອຍ USD</th></tr></thead>
+    <tbody>${ownRows}</tbody>
+  </table></div>
+</div>
+<div class="dash-card"><div class="dct">${t('dctStat')}</div>${stBars}</div>
+<div class="dash-card"><div class="dct">${t('dctDept')}</div>${depBars}</div>
+<div class="dash-card"><div class="dct">${t('dctTrade')}</div>${trBars}</div>
+<div class="dash-card"><div class="dct">${t('dctSrc')}</div>${srcBars}</div>
+<div class="dash-card full">
+  <div class="dct">${t('dctRecent')}</div>
+  <div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse;font-size:11px">
+    <thead><tr style="background:#E3F2FD"><th style="padding:4px 6px">ວັນທີ</th><th style="padding:4px 6px">ຜູ້ຮັບຜິດຊອບ</th><th style="padding:4px 6px">ຊື່/ບໍລິສັດ</th><th style="padding:4px 6px">ແຫຼ່ງ</th><th style="padding:4px 6px">ຈຸດປະສົງ</th><th style="padding:4px 6px;text-align:right">USD</th><th style="padding:4px 6px">ສະຖານະ</th></tr></thead>
+    <tbody>${recRows}</tbody>
+  </table></div>
+</div>`;
+}
+
+// ============================================================
+// CALENDAR WIDGET
+// ============================================================
+let _calTarget=null,_calY=new Date().getFullYear(),_calM=new Date().getMonth();
+
+function openCal(inputId){
+  closeCal();
+  _calTarget=inputId;
+  const inp=document.getElementById(inputId);
+  if(!inp)return;
+  // Parse existing value DD/MM/YYYY
+  const v=inp.value;
+  if(v&&v.match(/^\d{2}\/\d{2}\/\d{4}$/)){
+    const p=v.split('/');_calM=parseInt(p[1])-1;_calY=parseInt(p[2]);
+  } else {_calY=new Date().getFullYear();_calM=new Date().getMonth();}
+  const pop=document.createElement('div');
+  pop.className='cal-popup open';pop.id='cal-popup';
+  rdCal(pop);
+  inp.parentElement.style.position='relative';
+  inp.parentElement.appendChild(pop);
+  setTimeout(()=>document.addEventListener('click',calOutside),10);
+}
+
+function calOutside(e){
+  const pop=document.getElementById('cal-popup');
+  if(pop&&!pop.contains(e.target)&&e.target.className!=='date-icon'){closeCal();}
+}
+
+function closeCal(){
+  const pop=document.getElementById('cal-popup');
+  if(pop)pop.remove();
+  document.removeEventListener('click',calOutside);
+  _calTarget=null;
+}
+
+function rdCal(pop){
+  const DAYS=['ອາ','ຈ','ອ','ພ','ພຫ','ສຸ','ເສ'];
+  const MONTHS=['ມັງ','ກຸມ','ມີ','ເມ','ພ','ມິ','ກ','ສ','ກ','ຕ','ພ','ທ'];
+  const fd=new Date(_calY,_calM,1).getDay();
+  const dm=new Date(_calY,_calM+1,0).getDate();
+  const today=new Date();
+  let sel=null;
+  if(_calTarget){const inp=document.getElementById(_calTarget);if(inp&&inp.value.match(/^\d{2}\/\d{2}\/\d{4}$/)){const p=inp.value.split('/');if(parseInt(p[1])-1===_calM&&parseInt(p[2])===_calY)sel=parseInt(p[0]);}}
+  let g='';
+  DAYS.forEach(d=>g+=`<div class="cal-dh">${d}</div>`);
+  for(let i=0;i<fd;i++)g+=`<div class="cal-d empty"></div>`;
+  for(let d=1;d<=dm;d++){
+    const isT=d===today.getDate()&&_calM===today.getMonth()&&_calY===today.getFullYear();
+    const isS=d===sel;
+    g+=`<div class="cal-d${isS?' sel':isT?' today':''}" onclick="pickDate(${d})">${d}</div>`;
+  }
+  pop.innerHTML=`
+<div class="cal-hdr">
+  <button class="cal-nav" onclick="mvCal(-1);event.stopPropagation()">‹</button>
+  <span class="cal-month">${MONTHS[_calM]} ${_calY}</span>
+  <button class="cal-nav" onclick="mvCal(1);event.stopPropagation()">›</button>
+</div>
+<div class="cal-grid">${g}</div>
+<div style="text-align:center;margin-top:8px">
+  <button class="btn bgy" style="font-size:11px;height:24px;padding:0 10px" onclick="pickToday();event.stopPropagation()">ມື້ນີ້</button>
+  <button class="btn bgy" style="font-size:11px;height:24px;padding:0 10px;margin-left:4px" onclick="clearDate();event.stopPropagation()">ລ້າງ</button>
+</div>`;
+}
+
+function mvCal(d){
+  _calM+=d;
+  if(_calM>11){_calM=0;_calY++;}
+  if(_calM<0){_calM=11;_calY--;}
+  const pop=document.getElementById('cal-popup');if(pop)rdCal(pop);
+}
+
+function pickDate(d){
+  if(!_calTarget)return;
+  const mm=String(_calM+1).padStart(2,'0');
+  const dd=String(d).padStart(2,'0');
+  const inp=document.getElementById(_calTarget);
+  if(inp)inp.value=`${dd}/${mm}/${_calY}`;
+  closeCal();
+}
+
+function pickToday(){
+  const t=new Date();
+  _calM=t.getMonth();_calY=t.getFullYear();
+  pickDate(t.getDate());
+}
+
+function clearDate(){
+  const inp=document.getElementById(_calTarget);if(inp)inp.value='';closeCal();
+}
+
+// ============================================================
+// COLLATERAL ROWS
+// ============================================================
+let COLS=[];
+
+function rdCols(){
+  const c=document.getElementById('col-ct');if(!c)return;
+  let h='';
+  COLS.forEach((r,i)=>{
+    h+=`<div class="col-row">
+<div>
+  <label style="font-size:11px;color:#607D8B;font-weight:600;display:block;margin-bottom:3px">ປະເພດ</label>
+  <select onchange="COLS[${i}].type=this.value;updColTot()">${opts(COLTYPES,r.type)}</select>
+</div>
+<div>
+  <label style="font-size:11px;color:#607D8B;font-weight:600;display:block;margin-bottom:3px">ມູນຄ່າ (USD)</label>
+  <input type="number" value="${r.value||''}" placeholder="0" oninput="COLS[${i}].value=parseFloat(this.value)||0;updColTot()">
+</div>
+<div>
+  <label style="font-size:11px;color:#607D8B;font-weight:600;display:block;margin-bottom:3px">ລາຍລະອຽດ / ຫຍໍ້</label>
+  <input type="text" value="${xe(r.desc||'')}" placeholder="ທີ່ຕັ້ງ, ເນື້ອທີ່, ທະບຽນ..." oninput="COLS[${i}].desc=this.value">
+</div>
+<div style="padding-bottom:2px">
+  <button class="btn bsm" style="background:#FFEBEE;color:#B71C1C;border:1px solid #FFCDD2;height:34px" onclick="rmCol(${i})">✕</button>
+</div>
+</div>`;
+  });
+  c.innerHTML=h;
+  updColTot();
+}
+
+function addCol(){COLS.push({type:'ດິນ+ເຮືອນ',value:0,desc:''});rdCols();}
+function rmCol(i){COLS.splice(i,1);rdCols();}
+function updColTot(){
+  const el=document.getElementById('col-tot');if(!el)return;
+  const t=COLS.reduce((s,r)=>s+(Number(r.value)||0),0);
+  el.textContent=t?'ລວມ: '+fmtUSD(t):'';
+}
+
+// ============================================================
+// ATTACHMENT — Browse image + Drive Link
+// ============================================================
+let ATTS=[];
+
+// Global image cache
+window._IMGCACHE={};
+
+function rdAtts(){
+  const ct=document.getElementById('att-ct');
+  if(!ct)return;
+  ct.innerHTML='';
+  if(!ATTS.length){
+    ct.innerHTML='<div style="color:#B0BEC5;font-size:12px;padding:8px 4px">'+t('attNoFiles')+'</div>';
+    return;
+  }
+
+  ATTS.forEach((a,i)=>{
+    // Cache dataUrl globally
+    if(a.dataUrl) window._IMGCACHE['i'+i]=a.dataUrl;
+
+    // Wrapper row
+    const row=document.createElement('div');
+    row.style.cssText='display:flex;align-items:flex-start;gap:10px;background:#F8FAFC;padding:10px 12px;border-radius:10px;border:1px solid #E0E7EF;margin-bottom:8px';
+
+    // --- LEFT: thumbnail ---
+    const thumbWrap=document.createElement('div');
+    thumbWrap.style.cssText='flex-shrink:0;width:90px;height:70px;border-radius:8px;overflow:hidden;cursor:zoom-in;border:2px solid #1565C0;background:#ECEFF1;display:flex;align-items:center;justify-content:center';
+
+    if(a.kind==='image'&&a.dataUrl){
+      const img=document.createElement('img');
+      img.src=a.dataUrl;
+      img.style.cssText='width:100%;height:100%;object-fit:cover;display:block';
+      img.title='ກົດເພື່ອເບິ່ງ';
+      img.onclick=()=>showImgOverlay(a.dataUrl, a.name||'ຮູບພາບ');
+      thumbWrap.appendChild(img);
+    } else if(a.kind==='image'){
+      thumbWrap.style.border='2px dashed #CFD8DC';
+      thumbWrap.innerHTML='<span style="font-size:26px">🖼️</span>';
+    } else {
+      thumbWrap.style.cssText='flex-shrink:0;width:60px;height:60px;border-radius:8px;background:#E3F2FD;display:flex;align-items:center;justify-content:center;font-size:28px';
+      thumbWrap.style.cursor='default';
+      thumbWrap.style.border='none';
+      thumbWrap.innerHTML='🔗';
+    }
+    row.appendChild(thumbWrap);
+
+    // --- MIDDLE: name input + buttons ---
+    const mid=document.createElement('div');
+    mid.style.cssText='flex:1;min-width:0';
+
+    const inp=document.createElement('input');
+    inp.type='text';inp.value=a.name||'';
+    inp.placeholder=t('attName');
+    inp.style.cssText='width:100%;font-size:12px;padding:6px 8px;border:1px solid #CFD8DC;border-radius:6px;background:#fff;font-family:inherit;margin-bottom:6px;box-sizing:border-box';
+    inp.oninput=()=>{ATTS[i].name=inp.value;if(ATTS[i].dataUrl)window._IMGCACHE['i'+i+'n']=inp.value;};
+    mid.appendChild(inp);
+
+    const btnRow=document.createElement('div');
+    btnRow.style.cssText='display:flex;align-items:center;gap:6px;flex-wrap:wrap';
+
+    const tag=document.createElement('span');
+    tag.style.cssText='font-size:10px;color:#90A4AE;background:#ECEFF1;border-radius:4px;padding:1px 6px';
+    tag.textContent=a.kind==='image'?'📷 Local':'🔗 Drive';
+    btnRow.appendChild(tag);
+
+    if(a.url){
+      const drvBtn=document.createElement('a');
+      drvBtn.href=a.url;drvBtn.target='_blank';
+      drvBtn.textContent='🔗 ເປີດ Drive';
+      drvBtn.style.cssText='display:inline-flex;align-items:center;background:#E3F2FD;color:#1565C0;border-radius:6px;padding:3px 8px;font-size:11px;font-weight:600;text-decoration:none';
+      btnRow.appendChild(drvBtn);
+    }
+
+    if(a.kind==='image'&&!a.url){
+      // Add Drive Link inline input
+      const addLbl=document.createElement('label');
+      addLbl.style.cssText='font-size:10px;color:#1565C0;cursor:pointer;background:#E3F2FD;border-radius:4px;padding:2px 7px;display:inline-flex;align-items:center;gap:2px';
+      addLbl.textContent='＋ Drive Link';
+      const hidInp=document.createElement('input');
+      hidInp.type='text';hidInp.style.display='none';
+      hidInp.placeholder='https://drive.google.com/...';
+      hidInp.onchange=()=>{ATTS[i].url=hidInp.value;rdAtts();};
+      addLbl.appendChild(hidInp);
+      btnRow.appendChild(addLbl);
+    }
+
+    if(a.kind==='drive'){
+      const urlInp=document.createElement('input');
+      urlInp.type='url';urlInp.value=a.url||'';
+      urlInp.placeholder='https://drive.google.com/...';
+      urlInp.style.cssText='flex:1;min-width:160px;font-size:11px;padding:4px 8px;border:1px solid #CFD8DC;border-radius:5px;background:#fff;font-family:inherit';
+      urlInp.oninput=()=>ATTS[i].url=urlInp.value;
+      btnRow.appendChild(urlInp);
+    }
+
+    mid.appendChild(btnRow);
+    row.appendChild(mid);
+
+    // --- RIGHT: delete button ---
+    const del=document.createElement('button');
+    del.textContent='✕';
+    del.style.cssText='flex-shrink:0;background:#FFEBEE;color:#B71C1C;border:1px solid #FFCDD2;border-radius:6px;padding:4px 8px;cursor:pointer;font-size:13px;font-family:inherit;margin-top:2px';
+    del.onclick=()=>rmAtt(i);
+    row.appendChild(del);
+
+    ct.appendChild(row);
+  });
+}
+
+// handleImgUpload replaced by triggerImgPick
+
+function addDriveLink(){
+  ATTS.push({kind:'drive',name:'',url:''});
+  rdAtts();
+}
+
+function rmAtt(i){
+  ATTS.splice(i,1);
+  rdAtts();
+}
+
+// ============================================================
+// IMAGE VIEWER
+// ============================================================
+function showImgOverlay(src, name){
+  // remove any existing overlay
+  document.querySelectorAll('.imgov').forEach(el=>el.remove());
+  if(!src){toast('ບໍ່ພົບຮູບ — ກົດ Browse ກ່ອນ',false);return;}
+  const ov=document.createElement('div');
+  ov.className='imgov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(0,0,0,0.92);z-index:99999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:16px;cursor:zoom-out';
+  const img=document.createElement('img');
+  img.src=src;
+  img.style.cssText='max-width:92vw;max-height:80vh;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,0.6);object-fit:contain;cursor:default';
+  img.onclick=e=>e.stopPropagation();
+  const cap=document.createElement('div');
+  cap.style.cssText='color:#fff;font-size:13px;margin-top:12px;font-family:inherit;text-align:center;max-width:80vw';
+  cap.textContent=name||'ຮູບພາບ';
+  const closeBtn=document.createElement('button');
+  closeBtn.textContent='✕';
+  closeBtn.style.cssText='position:fixed;top:16px;right:16px;background:#fff;border:none;border-radius:50%;width:36px;height:36px;cursor:pointer;font-size:18px;font-weight:700;box-shadow:0 2px 8px rgba(0,0,0,0.4);z-index:100000';
+  closeBtn.onclick=()=>ov.remove();
+  ov.appendChild(img);ov.appendChild(cap);ov.appendChild(closeBtn);
+  ov.onclick=()=>ov.remove();
+  document.body.appendChild(ov);
+}
+
+// table row click handler
+function viewImgDirect(key,idx){
+  const c=D.find(r=>r._key===key);
+  if(!c||!c.attachments)return;
+  const a=c.attachments[idx];
+  if(a)showImgOverlay(a.dataUrl,a.name);
+}
+
+// backward compat alias
+function viewImgData(src,name){showImgOverlay(src,name);}
+
+// ============================================================
+// MODAL
+// ============================================================
+function openAdd(){EID=null;showM(buildForm(null));}
+function openEdit(key){EID=key;const c=D.find(r=>r._key===key);if(!c){toast('ບໍ່ພົບຂໍ້ມູນ',false);return;}showM(buildForm(c));}
+function showM(h){
+  document.getElementById('MB').innerHTML=h;
+  document.getElementById('MO').classList.add('open');
+  rdCols();
+  rdAtts();
+}
+// ============================================================
+// IMAGE UPLOAD — exact same pattern as working test file
+// ============================================================
+function triggerImgPick(){
+  // Always create fresh input
+  let fi=document.getElementById('_fi');
+  if(fi)fi.remove();
+  fi=document.createElement('input');
+  fi.type='file';
+  fi.id='_fi';
+  fi.accept='image/*';
+  fi.multiple=true;
+  fi.style.display='none';
+  document.body.appendChild(fi);
+  fi.onchange=function(){
+    const files=Array.from(fi.files);
+    if(!files.length)return;
+    files.forEach(function(file){
+      const reader=new FileReader();
+      reader.onload=function(ev){
+        ATTS.push({kind:'image',name:file.name,dataUrl:ev.target.result,url:'',size:file.size});
+        rdAtts();
+      };
+      reader.readAsDataURL(file);
+    });
+    fi.remove();
+  };
+  fi.click();
+}
+
+function closeModal(){
+  document.getElementById('MO').classList.remove('open');
+  EID=null;closeCal();
+  const fi=document.getElementById('_fi');
+  if(fi)fi.remove();
+}
+
+function buildForm(c){
+  const v=(f,d='')=>{if(!c)return d;const x=c[f];return(x===undefined||x===null)?d:x;};
+  COLS=c&&Array.isArray(c.collaterals)&&c.collaterals.length
+    ?JSON.parse(JSON.stringify(c.collaterals))
+    :[{type:'ດິນ+ເຮືອນ',value:0,desc:''}];
+  ATTS=c&&Array.isArray(c.attachments)&&c.attachments.length
+    ?JSON.parse(JSON.stringify(c.attachments))
+    :[];
+
+  return `<div class="mtitle">📝 ${c?'ແກ້ໄຂ':'ເພີ່ມ'} ເຄສໃໝ່${c?' — '+xe(c.company||c.owner||''):''}</div>
+<div class="fg">
+  <div class="sh">①ຂໍ້ມູນພະແນກ / ຜູ້ຮັບຜິດຊອບ</div>
+  <div class="fgrp"><label>ພະແນກ (Dept)</label><input id="fd" value="${xe(v('dept'))}"></div>
+  <div class="fgrp"><label>ຂະແໜງ (Sec)</label><input id="fs" value="${xe(v('sec'))}"></div>
+  <div class="fgrp"><label>ໜ່ວຍງານ (Unit)</label><input id="fu" value="${xe(v('unit'))}"></div>
+  <div class="fgrp"><label>ຜູ້ຮັບຜິດຊອບ ★</label><input id="fow" value="${xe(v('owner'))}"></div>
+  <div class="fgrp"><label>ຕຳແໜ່ງ</label><select id="fpo"><option value="">—</option>${opts(POSS,v('position'))}</select></div>
+  <div class="fgrp"><label>HO / BR</label><select id="fhb"><option value="HO">HO</option><option value="BR"${v('hobr')==='BR'?' selected':''}>BR</option></select></div>
+
+  <div class="sh">②ຂໍ້ມູນລູກຄ້າ</div>
+  <div class="fgrp f2"><label>ຊື່ບໍລິສັດ / ຊື່ລູກຄ້າ ★</label><input id="fco" value="${xe(v('company'))}"></div>
+  <div class="fgrp"><label>ຜູ້ຕິດຕໍ່</label><input id="fct" value="${xe(v('contact'))}"></div>
+  <div class="fgrp"><label>ເບີໂທ</label><input id="fte" value="${xe(v('tel'))}"></div>
+  <div class="fgrp"><label>ແຫຼ່ງຂໍ້ມູນ</label><select id="fsr"><option value="">—</option>${opts(SRCS,v('source'))}</select></div>
+  <div class="fgrp"><label>ທຸລະກິດ / ສາຂາ</label><input id="fbi" value="${xe(v('business'))}"></div>
+  <div class="fgrp"><label>ທີ່ຢູ່ / ແຂວງ</label><input id="fad" value="${xe(v('address'))}"></div>
+
+  <div class="sh">③ຈຸດປະສົງ & ເງື່ອນໄຂ</div>
+  <div class="fgrp"><label>ຈຸດປະສົງ</label><select id="ftr"><option value="">—</option>${opts(TRADES,v('trade'))}</select></div>
+  <div class="fgrp"><label>ວົງເງິນ (USD) ★</label><input type="number" id="fam" value="${v('amount','')}"></div>
+  <div class="fgrp"><label>ກຳນົດ 📅</label>
+    <div class="date-wrap">
+      <input id="fdl" placeholder="DD/MM/YYYY" value="${xe(v('deadline'))}" autocomplete="off" readonly style="cursor:pointer;background:#fff" onclick="openCal('fdl')">
+      <span class="date-icon" onclick="openCal('fdl')">📅</span>
+    </div>
+  </div>
+  <div class="fgrp"><label>ລາຍຮັບ/ເດືອນ (USD)</label><input type="number" id="frv" value="${v('revenue','')}"></div>
+  <div class="fgrp"><label>ກຳໄລ/ເດືອນ (USD)</label><input type="number" id="fpf" value="${v('profit','')}"></div>
+  <div class="fgrp"><label>ໄລຍະ (ເດືອນ)</label><input type="number" id="fte2" value="${v('terms','')}"></div>
+  <div class="fgrp f2"><label>ຈຸດປະສົງນຳໃຊ້ທຶນ</label><input id="fpu" value="${xe(v('purpose'))}"></div>
+  <div class="fgrp"><label>ວິທີຊຳລະຄືນ</label><input id="fre" value="${xe(v('repayment'))}"></div>
+
+  <div class="sh">④ຊັບສິນຄ້ຳປະກັນ — ເພີ່ມໄດ້ຫຼາຍລາຍການ</div>
+  <div class="f3">
+    <div id="col-ct"></div>
+    <div style="display:flex;align-items:center;gap:10px;margin-top:6px">
+      <button class="btn bgy" style="font-size:12px" onclick="addCol()">＋ ເພີ່ມຊັບສິນ</button>
+      <span id="col-tot" style="font-size:12px;color:#1B5E20;font-weight:700"></span>
+    </div>
+  </div>
+
+  <div class="sh">⑤ສະຖານະ & ການຕິດຕາມ</div>
+  <div class="fgrp"><label>ສະຖານະ Ringi ★</label><select id="frs"><option value="">—</option>${opts(STATS,v('ringiStatus','ລູກຄ້າສົນໃຈ'))}</select></div>
+  <div class="fgrp"><label>ສະຖານະໂທ</label><select id="fcs"><option value="">—</option>${opts(CALLST,v('callStatus'))}</select></div>
+  <div class="fgrp"><label>ຄວາມຄິດລູກຄ້າ</label><input id="fcu" value="${xe(v('custSay'))}"></div>
+  <div class="fgrp f3"><label>ໝາຍເຫດ</label><textarea id="fno" rows="2">${xe(v('notes'))}</textarea></div>
+  <div class="fgrp f3"><label>Free Space (ສຳລັບ Word RINGI)</label><textarea id="ffs" rows="2">${xe(v('freeSpace'))}</textarea></div>
+
+  <div class="sh">⑥ຮູບພາບ & ເອກະສານແນບ</div>
+  <div class="f3">
+    <div id="att-ct"></div>
+    <div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+      <button class="btn bgy" style="font-size:12px" id="browse-btn" type="button">📷 Browse ຮູບ (JPG/PNG)</button>
+      <button class="btn bgy" style="font-size:12px" onclick="addDriveLink()" type="button">🔗 ເພີ່ມ Drive Link</button>
+    </div>
+    <div style="font-size:11px;color:#90A4AE;margin-top:6px">
+      💡 ຮູບ: Browse ຈາກ Computer → ໂຊ preview ໃນ Browser ຂອງທ່ານ (ຄົນອື່ນເຫັນ icon + ຊື່) &nbsp;|&nbsp; Drive Link: ທຸກຄົນກົດເປີດໄດ້
+    </div>
+  </div>
+</div>
+<div class="mact">
+  <button class="btn bgy" onclick="closeModal()">ຍົກເລີກ</button>
+  <button class="btn bb" onclick="saveCase()">💾 ບັນທຶກ</button>
+  ${c?`<button class="btn bt" onclick="closeModal();openRingiLang('${xe(c._key)}')">📄 RINGI Word</button>`:''}
+</div>`;
+}
+
+function saveCase(){
+  const g=id=>{const el=document.getElementById(id);return el?el.value:'';};
+  const fields={
+    dept:g('fd'),sec:g('fs'),unit:g('fu'),owner:g('fow'),position:g('fpo'),hobr:g('fhb'),
+    company:g('fco'),contact:g('fct'),tel:g('fte'),source:g('fsr'),business:g('fbi'),address:g('fad'),
+    trade:g('ftr'),amount:parseFloat(g('fam'))||0,deadline:g('fdl'),
+    revenue:parseFloat(g('frv'))||0,profit:parseFloat(g('fpf'))||0,terms:g('fte2'),
+    purpose:g('fpu'),repayment:g('fre'),
+    collaterals:JSON.parse(JSON.stringify(COLS)),
+    attachments:JSON.parse(JSON.stringify(ATTS.filter(a=>a.url||a.name||a.dataUrl))),
+    ringiStatus:g('frs')||'ລູກຄ້າສົນໃຈ',callStatus:g('fcs'),
+    custSay:g('fcu'),notes:g('fno'),freeSpace:g('ffs')
+  };
+  if(!fields.owner.trim()){toast(t('errOwner'),false);return;}
+  if(!fields.company.trim()){toast(t('errCo'),false);return;}
+  if(EID){
+    const idx=D.findIndex(r=>r._key===EID);
+    if(idx>-1)D[idx]=Object.assign({},D[idx],fields);
+  } else {
+    fields._key='k'+Date.now()+'_'+Math.random().toString(36).slice(2,5);
+    fields.createdAt=Date.now();
+    D.push(fields);
+  }
+  closeModal();
+  persist();
+  initFilters();updBadges();rdDash();render();
+  toast(EID?t('toastUpdated'):t('toastSaved'));
+}
+
+function delCase(key){
+  if(!confirm(t('confirmDel')))return;
+  D=D.filter(r=>r._key!==key);
+  persist();initFilters();updBadges();rdDash();render();
+  toast(t('toastDel'));
+}
+
+// ============================================================
+// RINGI WORD
+// ============================================================
+function openRingiLang(key){
+  showM(`<div class="mtitle">📄 ${t('ringiLang')}</div>
+<div style="font-size:13px;color:#607D8B;margin-bottom:14px">${t('ringiChoose')}</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+  <button class="btn" style="padding:12px;font-size:14px;border:1px solid var(--border);text-align:left;height:auto;border-radius:8px;justify-content:flex-start" onclick="closeModal();genW('${xe(key)}','lo')">🇱🇦 <strong>ລາວ</strong> — ໃບຂໍອານຸມັດ RINGI</button>
+  <button class="btn" style="padding:12px;font-size:14px;border:1px solid var(--border);text-align:left;height:auto;border-radius:8px;justify-content:flex-start" onclick="closeModal();genW('${xe(key)}','en')">🇬🇧 <strong>English</strong> — Approval Request</button>
+  <button class="btn" style="padding:12px;font-size:14px;border:1px solid var(--border);text-align:left;height:auto;border-radius:8px;justify-content:flex-start" onclick="closeModal();genW('${xe(key)}','ja')">🇯🇵 <strong>日本語</strong> — 稟議書</button>
+</div>
+<div class="mact"><button class="btn bgy" onclick="closeModal()">ຍົກເລີກ</button></div>`);
+}
+
+const WT={
+  lo:{ti:'ໃ ບ ຂໍ ອ າ ນຸ ມັ ດ  RINGI',dt:'ວັນທີ',ow:'ຜູ້ຮັບຜິດຊອບ',dp:'ພ/ຂ',sr:'ແຫຼ່ງ',co:'ຊື່ບໍລິສັດ',ct:'ຜູ້ຕິດຕໍ່',tl:'ໂທ',pu:'ຈຸດປະສົງ',st:'ສະຖານະ',am:'ວົງເງິນ (USD)',dl:'ກຳນົດ',rv:'ລາຍຮັບ/ເດືອນ',pf:'ກຳໄລ/ເດືອນ',te:'ໄລຍະ',bz:'ທຸລະກິດ',fp:'ຈຸດປະສົງທຶນ',rp:'ຊຳລະຄືນ',ct2:'ປະເພດຊັບສິນ',cv:'ມູນຄ່າ',cd:'ລາຍລະອຽດ',tt:'ລວມ',no:'ໝາຍເຫດ',fs:'Free Space',a1:'ຜູ້ສະເໜີ',a2:'ຜູ້ອຳນວຍການ',a3:'ກຳມະການ',sp:'(ຕາ)',s1:'1. ຂໍ້ມູນພື້ນຖານ',s2:'2. ເງື່ອນໄຂທາງການເງິນ',s3:'3. ຂໍ້ມູນລູກຄ້າ',s4:'4. ຊັບສິນຄ້ຳປະກັນ',s5:'5. ໝາຍເຫດ',s6:'6. ລາຍເຊັນ'},
+  en:{ti:'RINGI — Approval Request',dt:'Date',ow:'PIC',dp:'Dept/Sec',sr:'Source',co:'Company',ct:'Contact',tl:'Tel',pu:'Purpose',st:'Status',am:'Amount (USD)',dl:'Deadline',rv:'Revenue/Month',pf:'Profit/Month',te:'Tenure',bz:'Business',fp:'Fund Purpose',rp:'Repayment',ct2:'Collateral Type',cv:'Value',cd:'Description',tt:'Total',no:'Notes',fs:'Remarks/Free',a1:'Applicant',a2:'Director',a3:'Board',sp:'(Stamp)',s1:'1. Basic Info',s2:'2. Financial',s3:'3. Customer',s4:'4. Collateral',s5:'5. Remarks',s6:'6. Approvals'},
+  ja:{ti:'稟 議 書 (RINGI)',dt:'日付',ow:'担当者',dp:'部署',sr:'情報源',co:'会社名',ct:'担当',tl:'電話',pu:'目的',st:'状態',am:'金額(USD)',dl:'期限',rv:'月商',pf:'月次利益',te:'期間',bz:'事業',fp:'資金使途',rp:'返済',ct2:'担保種類',cv:'評価額',cd:'詳細',tt:'合計',no:'備考',fs:'自由記載',a1:'申請者',a2:'部長',a3:'取締役',sp:'（印）',s1:'1.基本情報',s2:'2.金融条件',s3:'3.顧客情報',s4:'4.担保資産',s5:'5.備考',s6:'6.承認'}
+};
+
+function genW(key,lang){
+  const c=D.find(r=>r._key===key);if(!c){toast('ບໍ່ພົບຂໍ້ມູນ',false);return;}
+  const t=WT[lang]||WT.lo;
+  const fn=n=>n?'$'+Number(n).toLocaleString():'—';
+  const today=new Date().toLocaleDateString();
+  const xe2=s=>String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const B='1565C0',LB='DBEAFE',CW=7938;
+  function tr(txt,o){o=o||{};let r='<w:rPr>';if(o.b)r+='<w:b/>';if(o.sz)r+=`<w:sz w:val="${o.sz}"/><w:szCs w:val="${o.sz}"/>`;if(o.c)r+=`<w:color w:val="${o.c}"/>`;r+='<w:rFonts w:ascii="Arial" w:hAnsi="Arial" w:cs="Arial"/></w:rPr>';return`<w:r>${r}<w:t xml:space="preserve">${xe2(txt)}</w:t></w:r>`;}
+  function pr(runs,o){o=o||{};let p='<w:pPr>';if(o.al)p+=`<w:jc w:val="${o.al}"/>`;if(o.bf||o.af)p+=`<w:spacing w:before="${o.bf||0}" w:after="${o.af||0}"/>`;if(o.bdr)p+=`<w:pBdr><w:bottom w:val="single" w:sz="8" w:color="${B}"/></w:pBdr>`;p+='</w:pPr>';return`<w:p>${p}${runs}</w:p>`;}
+  function cl(txt,o){o=o||{};const w=o.w||Math.floor(CW/2);let tc=`<w:tcPr><w:tcW w:w="${w}" w:type="dxa"/>`;if(o.bg)tc+=`<w:shd w:val="clear" w:color="auto" w:fill="${o.bg}"/>`;tc+='<w:tcMar><w:top w:w="80" w:type="dxa"/><w:bottom w:w="80" w:type="dxa"/><w:left w:w="120" w:type="dxa"/><w:right w:w="120" w:type="dxa"/></w:tcMar></w:tcPr>';return`<w:tc>${tc}<w:p><w:pPr>${o.al?`<w:jc w:val="${o.al}"/>`:''}
+</w:pPr>${tr(txt||'—',{b:o.b,sz:o.sz||20,c:o.c||'111111'})}</w:p></w:tc>`;}
+  const bdr='<w:top w:val="single" w:sz="4" w:color="A0BCD8"/><w:left w:val="single" w:sz="4" w:color="A0BCD8"/><w:bottom w:val="single" w:sz="4" w:color="A0BCD8"/><w:right w:val="single" w:sz="4" w:color="A0BCD8"/><w:insideH w:val="single" w:sz="4" w:color="A0BCD8"/><w:insideV w:val="single" w:sz="4" w:color="A0BCD8"/>';
+  const tb=rows=>`<w:tbl><w:tblPr><w:tblW w:w="${CW}" w:type="dxa"/><w:tblBorders>${bdr}</w:tblBorders></w:tblPr>${rows.join('')}</w:tbl>`;
+  const L=Math.floor(CW*.32),V=CW-L,Q=Math.floor(CW/4);
+  const lv=(l,v)=>`<w:tr>${cl(l,{bg:LB,b:true,sz:18,c:'1A3A5C',w:L})}${cl(v,{w:V})}</w:tr>`;
+  const lv2=(l1,v1,l2,v2)=>`<w:tr>${cl(l1,{bg:LB,b:true,sz:18,c:'1A3A5C',w:Q})}${cl(v1,{w:Q})}${cl(l2,{bg:LB,b:true,sz:18,c:'1A3A5C',w:Q})}${cl(v2,{w:Q})}</w:tr>`;
+  const sh=x=>pr(tr(x,{b:true,sz:22,c:B}),{bf:160,af:60,bdr:true});
+  let body='';
+  body+=pr(tr(t.ti,{b:true,sz:48,c:B}),{al:'center',af:40});
+  body+=pr(tr('TM-Pro | '+today,{sz:20,c:'666666'}),{al:'center',af:160,bdr:true});
+  body+=sh(t.s1);
+  body+=tb([lv2(t.dt,today,t.ow,c.owner||'—'),lv2(t.dp,(c.dept||'')+(c.sec?'/'+c.sec:''),t.sr,c.source||'—'),lv2(t.co,c.company||'—',t.ct,c.contact||'—'),lv2(t.tl,c.tel||'—',t.pu,c.trade||'—'),lv(t.st,c.ringiStatus||'—')]);
+  body+=sh(t.s2);
+  body+=tb([lv2(t.am,fn(c.amount),t.dl,c.deadline||'—'),lv2(t.rv,fn(c.revenue),t.pf,fn(c.profit)),lv(t.te,(c.terms||'—')+(c.terms?' mo':''))]);
+  body+=sh(t.s3);
+  body+=tb([lv(t.bz,c.business||'—'),lv(t.fp,c.purpose||'—'),lv(t.rp,c.repayment||'—')]);
+  body+=sh(t.s4);
+  const cols=Array.isArray(c.collaterals)&&c.collaterals.length?c.collaterals:[{type:c.collateralType||'—',value:c.collateralValue||0,desc:c.collateralDesc||''}];
+  const W3=Math.floor(CW/3);
+  const colH=`<w:tr>${cl(t.ct2,{bg:LB,b:true,sz:18,c:'1A3A5C',w:W3})}${cl(t.cv,{bg:LB,b:true,sz:18,c:'1A3A5C',w:W3})}${cl(t.cd,{bg:LB,b:true,sz:18,c:'1A3A5C',w:W3})}</w:tr>`;
+  const colR=cols.map(r=>`<w:tr>${cl(r.type||'—',{w:W3})}${cl(fn(r.value),{w:W3})}${cl(r.desc||'—',{w:W3})}</w:tr>`).join('');
+  const colT=cols.reduce((s,r)=>s+(Number(r.value)||0),0);
+  const colTR=`<w:tr>${cl(t.tt,{bg:'E8F5E9',b:true,sz:18,c:'1B5E20',w:W3})}${cl(fn(colT),{bg:'E8F5E9',b:true,sz:18,c:'1B5E20',w:W3})}${cl('',{w:W3})}</w:tr>`;
+  body+=tb([colH,colR,colTR]);
+  body+=sh(t.s5);
+  body+=tb([lv(t.no,c.notes||'—')]);
+  const ft=xe2(c.freeSpace||' ');
+  body+=`<w:tbl><w:tblPr><w:tblW w:w="${CW}" w:type="dxa"/><w:tblBorders>${bdr}</w:tblBorders></w:tblPr><w:tr><w:trPr><w:trHeight w:val="2400" w:hRule="atLeast"/></w:trPr><w:tc><w:tcPr><w:tcW w:w="${CW}" w:type="dxa"/></w:tcPr><w:p><w:r><w:rPr><w:rFonts w:ascii="Arial" w:hAnsi="Arial"/><w:sz w:val="20"/></w:rPr><w:t xml:space="preserve">${ft}</w:t></w:r></w:p></w:tc></w:tr></w:tbl>`;
+  body+=sh(t.s6);
+  const BW=Math.floor(CW/3);
+  const ar1=`<w:tr>${[t.a1,t.a2,t.a3].map(l=>cl(l,{bg:LB,b:true,sz:18,c:'1A3A5C',al:'center',w:BW})).join('')}</w:tr>`;
+  const ar2=`<w:tr><w:trPr><w:trHeight w:val="1800" w:hRule="exact"/></w:trPr>${[t.sp,t.sp,t.sp].map(s=>`<w:tc><w:tcPr><w:tcW w:w="${BW}" w:type="dxa"/><w:vAlign w:val="bottom"/></w:tcPr><w:p><w:pPr><w:jc w:val="center"/></w:pPr>${tr(s,{sz:18,c:'AAAAAA'})}</w:p></w:tc>`).join('')}</w:tr>`;
+  body+=tb([ar1,ar2]);
+
+  const docXml=`<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:document xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main" xmlns:w14="http://schemas.microsoft.com/office/word/2010/wordml" mc:Ignorable="w14"><w:body>${body}<w:sectPr><w:pgSz w:w="11906" w:h="16838"/><w:pgMar w:top="1134" w:right="1134" w:bottom="1134" w:left="1134" w:header="709" w:footer="709" w:gutter="0"/></w:sectPr></w:body></w:document>`;
+  if(typeof JSZip==='undefined'){toast('JSZip ໂຫລດໄໝ່ຫຼັງ refresh',false);return;}
+  const z=new JSZip();
+  z.file('[Content_Types].xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/word/document.xml" ContentType="application/vnd.openxmlformats-officedocument.wordprocessingml.document.main+xml"/></Types>');
+  z.file('_rels/.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="word/document.xml"/></Relationships>');
+  z.file('word/document.xml',docXml);
+  z.file('word/_rels/document.xml.rels','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"></Relationships>');
+  z.file('word/settings.xml','<?xml version="1.0" encoding="UTF-8" standalone="yes"?><w:settings xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main"><w:defaultTabStop w:val="720"/></w:settings>');
+  z.generateAsync({type:'blob',mimeType:'application/vnd.openxmlformats-officedocument.wordprocessingml.document'})
+   .then(b=>{const u=URL.createObjectURL(b);const a=document.createElement('a');a.href=u;a.download='RINGI_'+(c.company||c.owner||'case').replace(/[^\w]/g,'_')+'_'+lang.toUpperCase()+'.docx';a.click();URL.revokeObjectURL(u);});
+}
+
+// ============================================================
+// EXPORT / IMPORT
+// ============================================================
+function expCSV(){
+  const K=['dept','sec','unit','owner','position','hobr','company','contact','tel','source','trade','amount','deadline','ringiStatus','callStatus','business','purpose','notes'];
+  const csv='\uFEFF'+K.join(',')+'\n'+D.map(r=>K.map(k=>'"'+String(r[k]||'').replace(/"/g,'""')+'"').join(',')).join('\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='TIK_NewBiz_'+new Date().toISOString().slice(0,10)+'.csv';a.click();
+}
+function expJSON(){
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(D,null,2)],{type:'application/json;charset=utf-8'}));a.download='TIK_NewBiz_'+new Date().toISOString().slice(0,10)+'.json';document.body.appendChild(a);a.click();document.body.removeChild(a);
+}
+function impJSON(){
+  const i=document.createElement('input');i.type='file';i.accept='.json';
+  i.onchange=e=>{const f=e.target.files[0];if(!f)return;const r=new FileReader();r.onload=ev=>{try{const imp=JSON.parse(ev.target.result);if(!Array.isArray(imp))throw new Error('Not array');if(!confirm(t('confirmImport').replace('{n}',imp.length)))return;D=imp;save2ls();initFilters();updBadges();rdDash();render();toast('✅ ນຳເຂົ້າ '+imp.length+' ລາຍການ');}catch(err){toast('ຜິດພາດ: '+err.message,false);}};r.readAsText(f,'utf-8');};
+  i.click();
+}
+
+// ============================================================
+// GIST SYNC (Real-time sharing ທຸກຄົນ)
+// ============================================================
+function setSS(msg,ok){
+  const el=document.getElementById('synclbl');if(!el)return;
+  el.textContent=msg;
+  el.style.background=ok===true?'rgba(34,197,94,.3)':ok===false?'rgba(198,40,40,.3)':'rgba(255,255,255,.15)';
+  const dot=document.getElementById('rtdot');if(dot)dot.style.background=ok===true?'#22c55e':ok===false?'#ef4444':'#fbbf24';
+}
+
+async function pushGist(){
+  if(!GIST_ID||!getToken()){save2ls();setSS('💾 Local only',null);return;}
+  const dot=document.getElementById('rtdot');if(dot)dot.classList.add('syncing');
+  setSS('⏳ Saving...',null);
+  const syncData=D.map(c=>{
+    if(!c.attachments)return c;
+    return Object.assign({},c,{
+      attachments:c.attachments.map(a=>a.kind==='image'?{kind:'image',name:a.name,url:a.url||'',size:a.size||0}:a)
+    });
+  });
+  try{
+    const r=await fetch('https://api.github.com/gists/'+GIST_ID,{
+      method:'PATCH',
+      mode:'cors',
+      headers:{
+        'Authorization':'token '+getToken(),
+        'Accept':'application/vnd.github.v3+json',
+        'Content-Type':'application/json'
+      },
+      body:JSON.stringify({files:{[GIST_FILE]:{content:JSON.stringify(syncData)}}})
+    });
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    setSS('☁️ Synced ✅',true);save2ls();
+    if(BC)BC.postMessage({ts:Date.now()});
+  }catch(e){
+    setSS('⚠️ '+e.message,false);
+    console.error('pushGist error:',e);
+    save2ls();
+  }
+  finally{if(dot)dot.classList.remove('syncing');}
+}
+
+async function pullGist(silent){
+  if(!GIST_ID||!getToken()){setSS('💾 Local mode',null);return null;}
+  if(!silent)setSS('⏳ Loading...',null);
+  try{
+    const r=await fetch('https://api.github.com/gists/'+GIST_ID,{
+      method:'GET',
+      mode:'cors',
+      headers:{
+        'Authorization':'token '+getToken(),
+        'Accept':'application/vnd.github.v3+json',
+        'If-None-Match':ETAG||''
+      }
+    });
+    if(r.status===304){if(!silent)setSS('☁️ Up-to-date ✅',true);return null;}
+    if(!r.ok)throw new Error('HTTP '+r.status);
+    ETAG=r.headers.get('ETag')||null;
+    const j=await r.json();
+    const fc=j.files&&j.files[GIST_FILE]&&j.files[GIST_FILE].content;
+    if(fc){const p=JSON.parse(fc);if(Array.isArray(p)){if(!silent)setSS('☁️ Synced ✅ ('+p.length+')',true);return p;}}
+    setSS('☁️ Ready ✅',true);return null;
+  }catch(e){
+    setSS('⚠️ '+e.message,false);
+    console.error('pullGist error:',e);
+    return null;
+  }
+}
+
+function save2ls(){try{localStorage.setItem(LS_KEY,JSON.stringify(D));}catch(e){}}
+function loadLS(){try{const s=localStorage.getItem(LS_KEY);if(s){const p=JSON.parse(s);if(Array.isArray(p)&&p.length)return p;}}catch(e){}return null;}
+
+function applyRemote(rd){
+  if(!rd)return false;
+  if(JSON.stringify(rd)===JSON.stringify(D))return false;
+  D=rd;save2ls();initFilters();updBadges();rdDash();render();setSS('🔄 Updated ✅',true);return true;
+}
+
+function persist(){pushGist();}
+
+function manualSync(){pullGist().then(applyRemote);}
+
+function startSync(){
+  if(TMRPULL)clearInterval(TMRPULL);
+  TMRPULL=setInterval(()=>pullGist(true).then(applyRemote),15000);
+}
+
+function initBC(){
+  try{BC=new BroadcastChannel('tik_nb_sync');BC.onmessage=()=>pullGist(true).then(applyRemote);}catch(e){}
+}
+
+// ============================================================
+// INIT
+// ============================================================
+(function(){
+  const ls=loadLS();if(ls)D=ls;
+  checkToken();
+  // Restore saved language
+  const savedLang=localStorage.getItem('tik_lang')||'lo';
+  LANG=savedLang;
+  ['lo','en','ja'].forEach(l=>{const b=document.getElementById('lb-'+l);if(b)b.classList.toggle('active',l===savedLang);});
+  const NT=I18N[savedLang]||I18N.lo;
+  const nt=document.getElementById('nav-title');if(nt)nt.textContent=NT.title;
+  const td=document.getElementById('tab-dash');if(td)td.textContent=NT.tabDash;
+  const tc=document.getElementById('tab-cases');if(tc)tc.textContent=NT.tabCases;
+  initFilters();updBadges();rdDash();render();
+  initBC();startSync();
+  pullGist().then(applyRemote);
+})();
+</script>
+</body>
+</html>
